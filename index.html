@@ -2,575 +2,358 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NEON VANGUARD // OVERDRIVE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NECRO-VOID // Software 3D Engine</title>
 <style>
-:root {
---cyan: #00f3ff;
---magenta: #ff007f;
---amber: #ffb800;
---lime: #00ff88;
---violet: #b537f2;
---red: #ff2a55;
---bg: #05050c;
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+body, html {
+width: 100%; height: 100%;
+background-color: #050508;
+display: flex; justify-content: center; align-items: center;
+overflow: hidden; font-family: 'Courier New', Courier, monospace;
 }
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-user-select: none;
--webkit-user-select: none;
-}
-html, body {
-width: 100%;
-height: 100%;
-overflow: hidden;
-background-color: var(--bg);
-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, monospace;
-color: #fff;
-cursor: none;
+#game-container {
+position: relative;
+display: flex; justify-content: center; align-items: center;
+box-shadow: 0 0 40px rgba(0, 255, 200, 0.15);
+border: 2px solid #1a2634;
 }
 canvas {
 display: block;
-width: 100%;
-height: 100%;
-}
-/* UI Overlay System */
-#ui-layer {
-position: absolute;
-inset: 0;
-pointer-events: none;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-padding: 18px 24px 28px 24px;
-z-index: 10;
-}
-.hud-top {
-display: flex;
-justify-content: space-between;
-align-items: flex-start;
-width: 100%;
-}
-.hud-panel {
-background: rgba(8, 10, 22, 0.72);
-border: 1px solid rgba(0, 243, 255, 0.28);
-box-shadow: 0 0 20px rgba(0, 243, 255, 0.1), inset 0 0 12px rgba(0, 243, 255, 0.05);
-backdrop-filter: blur(6px);
-border-radius: 6px;
-padding: 12px 16px;
-}
-.hud-left {
-min-width: 280px;
-}
-.stat-label {
-font-size: 11px;
-letter-spacing: 2px;
-text-transform: uppercase;
-color: rgba(255, 255, 255, 0.65);
-margin-bottom: 5px;
-display: flex;
-justify-content: space-between;
-font-weight: 700;
-}
-.hp-bar-outer {
-width: 100%;
-height: 14px;
-background: rgba(255, 42, 85, 0.15);
-border: 1px solid rgba(255, 42, 85, 0.5);
-border-radius: 3px;
-position: relative;
-overflow: hidden;
-margin-bottom: 10px;
-}
-.hp-bar-trail {
-position: absolute;
-top: 0;
-left: 0;
-height: 100%;
-background: #fff;
-width: 100%;
-transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-opacity: 0.7;
-}
-.hp-bar-inner {
-position: absolute;
-top: 0;
-left: 0;
-height: 100%;
-background: linear-gradient(90deg, #ff0055, #ff4d79);
-box-shadow: 0 0 12px #ff0055;
-width: 100%;
-}
-.dash-bar-outer {
-width: 100%;
-height: 8px;
-background: rgba(0, 243, 255, 0.12);
-border: 1px solid rgba(0, 243, 255, 0.45);
-border-radius: 3px;
-position: relative;
-overflow: hidden;
-}
-.dash-bar-inner {
-position: absolute;
-top: 0;
-left: 0;
-height: 100%;
-background: linear-gradient(90deg, #00b8ff, #00f3ff);
-box-shadow: 0 0 10px #00f3ff;
-width: 100%;
-}
-.upgrade-strip {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
-margin-top: 10px;
-max-width: 280px;
-}
-.upgrade-pill {
-font-size: 10px;
-font-weight: 700;
-letter-spacing: 1px;
-padding: 3px 7px;
-border-radius: 3px;
-background: rgba(0, 243, 255, 0.12);
-border: 1px solid rgba(0, 243, 255, 0.4);
-color: var(--cyan);
-text-shadow: 0 0 6px rgba(0, 243, 255, 0.6);
-}
-.hud-center {
-text-align: center;
-min-width: 220px;
-}
-.timer-display {
-font-size: 28px;
-font-weight: 900;
-letter-spacing: 3px;
-color: #fff;
-text-shadow: 0 0 14px var(--cyan);
-font-variant-numeric: tabular-nums;
-line-height: 1;
-}
-.wave-display {
-font-size: 12px;
-font-weight: 800;
-letter-spacing: 3px;
-color: var(--magenta);
-text-shadow: 0 0 10px var(--magenta);
-margin-top: 4px;
-text-transform: uppercase;
-}
-.hud-right {
-text-align: right;
-min-width: 240px;
-}
-.score-val {
-font-size: 22px;
-font-weight: 900;
-letter-spacing: 1.5px;
-color: var(--amber);
-text-shadow: 0 0 12px rgba(255, 184, 0, 0.6);
-font-variant-numeric: tabular-nums;
-}
-.sub-telemetry {
-font-size: 11px;
-color: rgba(255, 255, 255, 0.6);
-letter-spacing: 1px;
-margin-top: 4px;
-font-variant-numeric: tabular-nums;
-}
-.controls-bar {
-display: flex;
-gap: 8px;
-justify-content: flex-end;
-margin-top: 8px;
-pointer-events: auto;
-}
-.hud-btn {
-background: rgba(0, 243, 255, 0.1);
-border: 1px solid rgba(0, 243, 255, 0.4);
-color: var(--cyan);
-font-size: 10px;
-font-weight: 700;
-letter-spacing: 1px;
-padding: 4px 8px;
-border-radius: 3px;
-cursor: pointer;
-transition: all 0.15s ease;
-text-transform: uppercase;
-}
-.hud-btn:hover, .hud-btn.active {
-background: rgba(0, 243, 255, 0.28);
-box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-color: #fff;
-}
-
-/* Bottom XP Bar */
-.hud-bottom {
-width: 100%;
-position: relative;
-}
-.xp-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 5px;
-}
-.lvl-badge {
-font-size: 13px;
-font-weight: 900;
-letter-spacing: 2px;
-color: var(--lime);
-text-shadow: 0 0 10px var(--lime);
-}
-.xp-bar-outer {
-width: 100%;
-height: 10px;
-background: rgba(0, 255, 136, 0.1);
-border: 1px solid rgba(0, 255, 136, 0.45);
-border-radius: 4px;
-overflow: hidden;
-position: relative;
-}
-.xp-bar-inner {
-height: 100%;
-width: 0%;
-background: linear-gradient(90deg, #00f3ff, #00ff88);
-box-shadow: 0 0 16px #00ff88;
-transition: width 0.12s ease-out;
-}
-
-/* Modals (Start, LevelUp, GameOver) */
-.modal-overlay {
-position: absolute;
-inset: 0;
-background: rgba(4, 5, 12, 0.82);
-backdrop-filter: blur(8px);
-display: flex;
-align-items: center;
-justify-content: center;
-z-index: 30;
-opacity: 0;
-pointer-events: none;
-transition: opacity 0.2s ease;
-}
-.modal-overlay.active {
-opacity: 1;
-pointer-events: auto;
-cursor: default;
-}
-.modal-card {
-background: rgba(10, 14, 30, 0.92);
-border: 1px solid rgba(0, 243, 255, 0.45);
-box-shadow: 0 0 50px rgba(0, 243, 255, 0.2), inset 0 0 30px rgba(0, 243, 255, 0.06);
-border-radius: 10px;
-padding: 36px 42px;
-max-width: 900px;
-width: 92%;
-text-align: center;
-}
-.title-glitch {
-font-size: 46px;
-font-weight: 900;
-letter-spacing: 6px;
-text-transform: uppercase;
-color: #fff;
-text-shadow: 0 0 20px var(--cyan), 3px 0 0 var(--magenta), -3px 0 0 var(--cyan);
-margin-bottom: 8px;
-}
-.subtitle {
-font-size: 13px;
-letter-spacing: 4px;
-text-transform: uppercase;
-color: var(--cyan);
-margin-bottom: 28px;
-opacity: 0.85;
-}
-.key-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-gap: 14px;
-margin-bottom: 30px;
-text-align: left;
-}
-.key-box {
-background: rgba(255, 255, 255, 0.03);
-border: 1px solid rgba(255, 255, 255, 0.12);
-border-radius: 6px;
-padding: 12px 14px;
-}
-.key-tag {
-display: inline-block;
-font-size: 11px;
-font-weight: 800;
-color: var(--amber);
-border: 1px solid var(--amber);
-padding: 2px 7px;
-border-radius: 3px;
-margin-bottom: 6px;
-letter-spacing: 1px;
-}
-.key-desc {
-font-size: 12px;
-color: rgba(255, 255, 255, 0.78);
-line-height: 1.4;
-}
-.cta-pulse {
-display: inline-block;
-font-size: 16px;
-font-weight: 900;
-letter-spacing: 3px;
-padding: 14px 36px;
-color: #05050c;
-background: var(--cyan);
-border: none;
-border-radius: 4px;
-box-shadow: 0 0 25px var(--cyan);
-cursor: pointer;
-text-transform: uppercase;
-animation: pulseBtn 1.5s infinite ease-in-out;
-}
-.cta-pulse:hover {
-background: #fff;
-box-shadow: 0 0 35px #fff;
-}
-@keyframes pulseBtn {
-0%, 100% { transform: scale(1); box-shadow: 0 0 22px var(--cyan); }
-50% { transform: scale(1.04); box-shadow: 0 0 36px var(--cyan); }
-}
-
-/* Upgrade Cards */
-.cards-container {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 18px;
-margin-top: 22px;
-}
-@media (max-width: 760px) {
-.cards-container {
-grid-template-columns: 1fr;
-}
-}
-.upgrade-card {
-background: linear-gradient(160deg, rgba(16, 22, 46, 0.95), rgba(8, 10, 24, 0.95));
-border: 1px solid rgba(0, 243, 255, 0.35);
-border-radius: 8px;
-padding: 22px 18px;
-text-align: left;
-cursor: pointer;
-position: relative;
-transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.16s, box-shadow 0.16s;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-}
-.upgrade-card:hover {
-transform: translateY(-6px) scale(1.02);
-border-color: var(--cyan);
-box-shadow: 0 10px 30px rgba(0, 243, 255, 0.28), inset 0 0 18px rgba(0, 243, 255, 0.12);
-}
-.card-hotkey {
-position: absolute;
-top: 12px;
-right: 12px;
-font-size: 11px;
-font-weight: 900;
-color: rgba(255, 255, 255, 0.5);
-border: 1px solid rgba(255, 255, 255, 0.2);
-padding: 2px 7px;
-border-radius: 3px;
-}
-.card-tag {
-font-size: 10px;
-font-weight: 800;
-letter-spacing: 2px;
-text-transform: uppercase;
-margin-bottom: 8px;
-}
-.card-title {
-font-size: 18px;
-font-weight: 900;
-color: #fff;
-margin-bottom: 10px;
-letter-spacing: 0.5px;
-}
-.card-desc {
-font-size: 13px;
-color: rgba(255, 255, 255, 0.78);
-line-height: 1.5;
-margin-bottom: 16px;
-}
-.card-lvl {
-font-size: 11px;
-font-weight: 800;
-letter-spacing: 1.5px;
-color: var(--lime);
-text-transform: uppercase;
-}
-
-/* Stats Grid for Game Over */
-.stats-grid {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 14px;
-margin: 24px 0 30px 0;
-}
-.stat-cell {
-background: rgba(255, 255, 255, 0.03);
-border: 1px solid rgba(255, 255, 255, 0.1);
-padding: 14px;
-border-radius: 6px;
-}
-.stat-cell-val {
-font-size: 26px;
-font-weight: 900;
-color: var(--cyan);
-text-shadow: 0 0 12px rgba(0, 243, 255, 0.5);
-margin-top: 4px;
+image-rendering: pixelated;
+image-rendering: crisp-edges;
+cursor: crosshair;
 }
 </style>
 </head>
 <body>
-
-<canvas id="gameCanvas"></canvas>
-
-<!-- HUD Layer -->
-<div id="ui-layer">
-<div class="hud-top">
-<div class="hud-panel hud-left">
-<div class="stat-label">
-<span>HULL INTEGRITY</span>
-<span id="hp-text">100 / 100</span>
-</div>
-<div class="hp-bar-outer">
-<div class="hp-bar-trail" id="hp-trail"></div>
-<div class="hp-bar-inner" id="hp-bar"></div>
-</div>
-<div class="stat-label">
-<span>PHASE DASH [SPACE / SHIFT]</span>
-<span id="dash-text">READY</span>
-</div>
-<div class="dash-bar-outer">
-<div class="dash-bar-inner" id="dash-bar"></div>
-</div>
-<div class="upgrade-strip" id="upgrade-strip"></div>
-</div>
-
-<div class="hud-panel hud-center">
-<div class="timer-display" id="timer-text">00:00</div>
-<div class="wave-display" id="wave-text">WAVE 1 // SWARM INIT</div>
-</div>
-
-<div class="hud-panel hud-right">
-<div class="stat-label" style="justify-content: flex-end;">SCORE // COMBO</div>
-<div class="score-val" id="score-text">0</div>
-<div class="sub-telemetry" id="combo-text">1.0x MULTIPLIER | 0 KILLS</div>
-<div class="sub-telemetry" id="perf-text">60 FPS | 0 ENTITIES</div>
-<div class="controls-bar">
-<button class="hud-btn active" id="btn-autofire" title="Toggle Auto-Fire [F]">[F] AUTO-FIRE: ON</button>
-<button class="hud-btn" id="btn-mute" title="Toggle Audio [M]">[M] AUDIO: ON</button>
-</div>
-</div>
-</div>
-
-<div class="hud-bottom">
-<div class="xp-header">
-<span class="lvl-badge" id="lvl-text">SYSTEM LEVEL 01</span>
-<span class="stat-label" id="xp-text" style="margin:0;">0 / 100 XP</span>
-</div>
-<div class="xp-bar-outer">
-<div class="xp-bar-inner" id="xp-bar"></div>
-</div>
-</div>
-</div>
-
-<!-- Start Screen Modal -->
-<div class="modal-overlay active" id="start-modal">
-<div class="modal-card">
-<div class="title-glitch">NEON VANGUARD</div>
-<div class="subtitle">SYNTHWAVE ARENA SURVIVAL ROGUELITE</div>
-<div class="key-grid">
-<div class="key-box">
-<div class="key-tag">WASD / ARROWS</div>
-<div class="key-desc">Omnidirectional vector thruster movement with inertia.</div>
-</div>
-<div class="key-box">
-<div class="key-tag">MOUSE / [F]</div>
-<div class="key-desc">Aim plasma turrets. Auto-fire enabled by default or hold Left-Click.</div>
-</div>
-<div class="key-box">
-<div class="key-tag">SPACE / SHIFT / R-CLICK</div>
-<div class="key-desc">Phase Dash with invulnerability frames & shockwave knockback.</div>
-</div>
-<div class="key-box">
-<div class="key-tag">1 - 2 - 3 KEYS</div>
-<div class="key-desc">Quick-select cybernetic weapon augmentations on level-up.</div>
-</div>
-</div>
-<button class="cta-pulse" id="start-btn">INITIALIZE RUN [SPACE]</button>
-</div>
-</div>
-
-<!-- Level Up Modal -->
-<div class="modal-overlay" id="levelup-modal">
-<div class="modal-card">
-<div class="title-glitch" style="font-size: 32px; color: var(--lime);">SYSTEM AUGMENTATION</div>
-<div class="subtitle" style="margin-bottom: 10px;">SELECT ONE CYBERNETIC OVERCLOCK [KEYS 1 / 2 / 3 OR CLICK]</div>
-<div class="cards-container" id="upgrade-cards"></div>
-</div>
-</div>
-
-<!-- Game Over Modal -->
-<div class="modal-overlay" id="gameover-modal">
-<div class="modal-card">
-<div class="title-glitch" style="color: var(--red); text-shadow: 0 0 25px var(--red);">SIGNAL TERMINATED</div>
-<div class="subtitle" id="gameover-subtitle">HULL BREACH DETECTED IN SECTOR 01</div>
-<div class="stats-grid">
-<div class="stat-cell">
-<div class="stat-label" style="justify-content:center;">SURVIVAL TIME</div>
-<div class="stat-cell-val" id="go-time">00:00</div>
-</div>
-<div class="stat-cell">
-<div class="stat-label" style="justify-content:center;">FINAL SCORE</div>
-<div class="stat-cell-val" id="go-score" style="color: var(--amber);">0</div>
-</div>
-<div class="stat-cell">
-<div class="stat-label" style="justify-content:center;">HOSTILES VAPORIZED</div>
-<div class="stat-cell-val" id="go-kills" style="color: var(--magenta);">0</div>
-</div>
-<div class="stat-cell">
-<div class="stat-label" style="justify-content:center;">SYSTEM LEVEL REACHED</div>
-<div class="stat-cell-val" id="go-level" style="color: var(--lime);">1</div>
-</div>
-</div>
-<button class="cta-pulse" id="restart-btn">PRESS SPACE TO REDEPLOY</button>
-</div>
+<div id="game-container">
+<canvas id="screen"></canvas>
 </div>
 
 <script>
-(() => {
-'use strict';
+"use strict";
 
-// ============================================================================
-// 1. PROCEDURAL WEB AUDIO SYNTHESIZER & SEQUENCER
-// ============================================================================
+/**
+* ============================================================================
+* 1. MATH, PRNG & PROCEDURAL NOISE UTILITIES
+* ============================================================================
+*/
+class PRNG {
+constructor(seed = 1337) {
+this.seed = seed >>> 0;
+}
+next() {
+let t = (this.seed += 0x6D2B79F5);
+t = Math.imul(t ^ (t >>> 15), t | 1);
+t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+range(min, max) {
+return min + this.next() * (max - min);
+}
+int(min, max) {
+return Math.floor(this.range(min, max + 1));
+}
+}
+
+class NoiseGenerator {
+constructor(seed = 42) {
+this.rng = new PRNG(seed);
+this.p = new Uint8Array(512);
+const perm = new Uint8Array(256);
+for (let i = 0; i < 256; i++) perm[i] = i;
+for (let i = 255; i > 0; i--) {
+const j = this.rng.int(0, i);
+const tmp = perm[i];
+perm[i] = perm[j];
+perm[j] = tmp;
+}
+for (let i = 0; i < 512; i++) this.p[i] = perm[i & 255];
+}
+fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+lerp(t, a, b) { return a + t * (b - a); }
+grad(hash, x, y) {
+const h = hash & 7;
+const u = h < 4 ? x : y;
+const v = h < 4 ? y : x;
+return ((h & 1) !== 0 ? -u : u) + ((h & 2) !== 0 ? -2.0 * v : 2.0 * v);
+}
+perlin2D(x, y) {
+const X = Math.floor(x) & 255;
+const Y = Math.floor(y) & 255;
+x -= Math.floor(x);
+y -= Math.floor(y);
+const u = this.fade(x);
+const v = this.fade(y);
+const A = this.p[X] + Y, B = this.p[X + 1] + Y;
+const res = this.lerp(v,
+this.lerp(u, this.grad(this.p[A], x, y), this.grad(this.p[B], x - 1, y)),
+this.lerp(u, this.grad(this.p[A + 1], x, y - 1), this.grad(this.p[B + 1], x - 1, y - 1))
+);
+return (res + 1) * 0.5;
+}
+fbm(x, y, octaves = 4) {
+let total = 0, frequency = 1, amplitude = 1, maxValue = 0;
+for (let i = 0; i < octaves; i++) {
+total += this.perlin2D(x * frequency, y * frequency) * amplitude;
+maxValue += amplitude;
+amplitude *= 0.5;
+frequency *= 2;
+}
+return total / maxValue;
+}
+}
+
+/**
+* ============================================================================
+* 2. PROCEDURAL TEXTURE & SPRITE GENERATOR
+* ============================================================================
+*/
+const TEX_SIZE = 64;
+
+class AssetManager {
+constructor() {
+this.noise = new NoiseGenerator(9001);
+this.textures = []; // Uint32Array (ABGR format for little-endian ImageData)
+this.sprites = {};
+this.generateAll();
+}
+
+packColor(r, g, b, a = 255) {
+r = Math.max(0, Math.min(255, r | 0));
+g = Math.max(0, Math.min(255, g | 0));
+b = Math.max(0, Math.min(255, b | 0));
+a = Math.max(0, Math.min(255, a | 0));
+return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0;
+}
+
+generateAll() {
+// Texture 0: Empty
+this.textures[0] = new Uint32Array(TEX_SIZE * TEX_SIZE);
+
+// Texture 1: Tech Stone Bricks
+this.textures[1] = this.createTexture((x, y) => {
+const n = this.noise.fbm(x * 0.12, y * 0.12, 3);
+const brickRow = (y >> 4);
+const offset = (brickRow & 1) * 16;
+const bx = (x + offset) & 31;
+const by = y & 15;
+const mortar = (bx === 0 || by === 0);
+let base = mortar ? 25 : 65 + n * 75;
+if (!mortar && (by === 1 || bx === 1)) base += 25;
+if (!mortar && (by === 15 || bx === 31)) base -= 25;
+return this.packColor(base * 0.85, base * 0.92, base * 1.05);
+});
+
+// Texture 2: Rusty Cyber Panel with Glowing Strip
+this.textures[2] = this.createTexture((x, y) => {
+const n = this.noise.fbm(x * 0.15, y * 0.15, 4);
+const border = (x < 3 || x > 60 || y < 3 || y > 60);
+const rivet = ((x === 5 || x === 58) && (y % 16 === 5));
+let r = 75 + n * 55, g = 65 + n * 45, b = 60 + n * 40;
+if (border) { r *= 0.45; g *= 0.45; b *= 0.45; }
+if (rivet) { r = 170; g = 170; b = 180; }
+// Hazard / Neon core line
+if (y > 27 && y < 36) {
+const stripe = ((x + y) & 8) !== 0;
+if (stripe) { r = 240; g = 180; b = 20; }
+else { r = 25; g = 25; b = 25; }
+}
+return this.packColor(r, g, b);
+});
+
+// Texture 3: Glowing Alien Circuit Wall
+this.textures[3] = this.createTexture((x, y) => {
+const n = this.noise.perlin2D(x * 0.1, y * 0.1);
+const grid = (x % 16 === 0 || y % 16 === 0);
+const pulse = Math.sin(x * 0.2) * Math.cos(y * 0.2) > 0.45;
+let r = 20 + n * 25, g = 35 + n * 35, b = 55 + n * 45;
+if (grid && n > 0.38) { r = 20; g = 230; b = 210; }
+else if (pulse) { r = 0; g = 170; b = 255; }
+return this.packColor(r, g, b);
+});
+
+// Texture 4: Crimson Flesh / Reactor Wall
+this.textures[4] = this.createTexture((x, y) => {
+const n = this.noise.fbm(x * 0.09, y * 0.09, 4);
+const veins = Math.abs(this.noise.perlin2D(x * 0.14, y * 0.14) - 0.5) < 0.045;
+let r = 80 + n * 95, g = 18 + n * 25, b = 28 + n * 35;
+if (veins) { r = 255; g = 90; b = 40; }
+return this.packColor(r, g, b);
+});
+
+// Texture 5: Exit Portal Wall
+this.textures[5] = this.createTexture((x, y) => {
+const dx = x - 32, dy = y - 32;
+const dist = Math.sqrt(dx * dx + dy * dy);
+const angle = Math.atan2(dy, dx);
+const swirl = Math.sin(dist * 0.35 - angle * 3);
+if (dist < 26) {
+const c = (swirl + 1) * 0.5;
+return this.packColor(40 + c * 150, 180 + c * 75, 255);
+}
+const n = this.noise.perlin2D(x * 0.2, y * 0.2);
+return this.packColor(40 + n * 40, 50 + n * 40, 70 + n * 40);
+});
+
+// Texture 6: Floor Tile
+this.textures[6] = this.createTexture((x, y) => {
+const n = this.noise.perlin2D(x * 0.18, y * 0.18);
+const edge = (x % 32 === 0 || y % 32 === 0);
+const diag = ((x & 31) === (y & 31)) && (x % 8 === 0);
+let v = edge ? 22 : 42 + n * 28;
+if (diag) v += 15;
+return this.packColor(v * 0.85, v * 0.95, v * 1.15);
+});
+
+// Texture 7: Ceiling Grate
+this.textures[7] = this.createTexture((x, y) => {
+const beam = (x % 32 < 4 || y % 32 < 4);
+const n = this.noise.perlin2D(x * 0.25, y * 0.25);
+let v = beam ? 45 : 18 + n * 16;
+return this.packColor(v * 0.9, v * 0.9, v);
+});
+
+// Generate Entity & Item Sprites
+this.sprites.grunt = this.createEnemySprite(230, 65, 45, 1);
+this.sprites.stalker = this.createEnemySprite(50, 220, 110, 2);
+this.sprites.boss = this.createEnemySprite(180, 50, 240, 3);
+this.sprites.health = this.createPickupSprite('health');
+this.sprites.ammo = this.createPickupSprite('ammo');
+this.sprites.Weapon = this.createPickupSprite('weapon');
+this.sprites.pillar = this.createPillarSprite();
+this.sprites.portal = this.createPortalSprite();
+this.sprites.projPlayer = this.createOrbSprite(60, 240, 255);
+this.sprites.projEnemy = this.createOrbSprite(255, 100, 30);
+}
+
+createTexture(fn) {
+const data = new Uint32Array(TEX_SIZE * TEX_SIZE);
+for (let y = 0; y < TEX_SIZE; y++) {
+for (let x = 0; x < TEX_SIZE; x++) {
+data[y * TEX_SIZE + x] = fn(x, y);
+}
+}
+return data;
+}
+
+createEnemySprite(rBase, gBase, bBase, variant) {
+return this.createTexture((x, y) => {
+const dx = (x - 32) / 32;
+const dy = (y - 32) / 32;
+const dist = Math.sqrt(dx * dx + dy * dy);
+const n = this.noise.perlin2D(x * 0.2, y * 0.2);
+
+// Cyber-Demon / Drone Silhouette
+const head = (dx * dx + (dy + 0.35) * (dy + 0.35)) < 0.14;
+const torso = Math.abs(dx) < (0.38 - Math.abs(dy) * 0.25) && dy > -0.25 && dy < 0.55;
+const shoulders = Math.abs(dx) < 0.58 && dy > -0.22 && dy < 0.08;
+const legs = (Math.abs(Math.abs(dx) - 0.18) < 0.1) && dy >= 0.5 && dy < 0.92;
+const horns = variant >= 2 && Math.abs(dx) > 0.2 && Math.abs(dx) < 0.48 && dy < -0.25 && dy > -0.65 && (Math.abs(dx) + dy < 0.1);
+
+if (!(head || torso || shoulders || legs || horns)) return 0;
+
+// Glowing Eyes / Visor
+if (dy > -0.42 && dy < -0.28 && Math.abs(dx) > 0.06 && Math.abs(dx) < 0.24) {
+return this.packColor(255, 255, 120);
+}
+// Chest Core
+if (dx * dx + (dy - 0.05) * (dy - 0.05) < 0.035) {
+return this.packColor(120, 255, 255);
+}
+
+const shade = (1.0 - dist * 0.65) * (0.7 + n * 0.6);
+const outline = (Math.abs(dx) > 0.52 || dy > 0.86) ? 0.4 : 1.0;
+return this.packColor(rBase * shade * outline, gBase * shade * outline, bBase * shade * outline);
+});
+}
+
+createPickupSprite(type) {
+return this.createTexture((x, y) => {
+if (x < 14 || x > 50 || y < 22 || y > 58) return 0;
+const border = (x < 17 || x > 47 || y < 25 || y > 55);
+if (type === 'health') {
+if (border) return this.packColor(180, 190, 200);
+const cross = (Math.abs(x - 32) < 4 && Math.abs(y - 40) < 11) ||
+(Math.abs(x - 32) < 11 && Math.abs(y - 40) < 4);
+if (cross) return this.packColor(240, 30, 40);
+return this.packColor(235, 240, 245);
+} else if (type === 'ammo') {
+if (border) return this.packColor(40, 60, 40);
+const stripe = (y > 36 && y < 44);
+if (stripe) return this.packColor(240, 200, 40);
+return this.packColor(65, 110, 55);
+} else {
+if (border) return this.packColor(80, 40, 120);
+const core = (Math.abs(x - 32) + Math.abs(y - 40)) < 12;
+if (core) return this.packColor(0, 255, 255);
+return this.packColor(140, 60, 220);
+}
+});
+}
+
+createPillarSprite() {
+return this.createTexture((x, y) => {
+const dx = Math.abs(x - 32);
+const width = (y < 10 || y > 54) ? 18 : 13;
+if (dx > width) return 0;
+const n = this.noise.perlin2D(x * 0.2, y * 0.2);
+const shade = 1.0 - (dx / width) * 0.65;
+// Glowing plasma tube inside pillar
+if (y >= 16 && y <= 48 && dx < 6) {
+return this.packColor(40, 220 * shade + 35, 255);
+}
+const c = (90 + n * 50) * shade;
+return this.packColor(c * 0.9, c, c * 1.1);
+});
+}
+
+createPortalSprite() {
+return this.createTexture((x, y) => {
+const dx = x - 32, dy = y - 32;
+const r = Math.sqrt(dx * dx + dy * dy);
+if (r > 28) return 0;
+const a = Math.atan2(dy, dx);
+const v = Math.sin(r * 0.45 - a * 4);
+const norm = 1 - r / 28;
+return this.packColor(
+80 + v * 80,
+200 * norm + 55,
+255
+);
+});
+}
+
+createOrbSprite(r, g, b) {
+return this.createTexture((x, y) => {
+const dx = x - 32, dy = y - 32;
+const dist = Math.sqrt(dx * dx + dy * dy);
+if (dist > 14) return 0;
+const t = 1 - (dist / 14);
+return this.packColor(
+r + (255 - r) * (t * t),
+g + (255 - g) * (t * t),
+b + (255 - b) * (t * t)
+);
+});
+}
+}
+
+/**
+* ============================================================================
+* 3. PROCEDURAL WEB AUDIO SYNTHESIZER & SOUND ENGINE
+* ============================================================================
+*/
 class SoundEngine {
 constructor() {
 this.ctx = null;
-this.master = null;
-this.compressor = null;
-this.noiseBuffer = null;
-this.muted = false;
-this.musicTimer = 0;
+this.masterGain = null;
+this.isPlayingMusic = false;
 this.step = 0;
-// Darksynth minor bass progression (MIDI note frequencies)
-this.bassNotes = [
-55.0, 55.0, 110.0, 55.0, 65.41, 65.41, 130.81, 65.41,
-73.42, 73.42, 146.83, 73.42, 61.74, 61.74, 123.47, 82.41
-];
-this.arpNotes = [
-220.0, 261.63, 329.63, 440.0, 261.63, 329.63, 392.0, 523.25
-];
+this.nextNoteTime = 0;
+this.tempo = 132;
+this.noiseBuffer = null;
 }
 
 init() {
@@ -579,2331 +362,1689 @@ if (this.ctx.state === 'suspended') this.ctx.resume();
 return;
 }
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-if (!AudioCtx) return;
 this.ctx = new AudioCtx();
+this.masterGain = this.ctx.createGain();
+this.masterGain.gain.value = 0.35;
+this.masterGain.connect(this.ctx.destination);
 
-this.compressor = this.ctx.createDynamicsCompressor();
-this.compressor.threshold.setValueAtTime(-18, this.ctx.currentTime);
-this.compressor.knee.setValueAtTime(12, this.ctx.currentTime);
-this.compressor.ratio.setValueAtTime(8, this.ctx.currentTime);
-this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
-this.compressor.release.setValueAtTime(0.15, this.ctx.currentTime);
-
-this.master = this.ctx.createGain();
-this.master.gain.value = this.muted ? 0 : 0.42;
-
-this.compressor.connect(this.master);
-this.master.connect(this.ctx.destination);
-
-// Pre-generate 1.5s white noise buffer for explosions & impacts
+// Pre-generate 1 second white noise buffer for percussion & explosions
 const sr = this.ctx.sampleRate;
-this.noiseBuffer = this.ctx.createBuffer(1, sr * 1.5, sr);
-const data = this.noiseBuffer.getChannelData(0);
-for (let i = 0; i < data.length; i++) {
-data[i] = Math.random() * 2 - 1;
+this.noiseBuffer = this.ctx.createBuffer(1, sr, sr);
+const output = this.noiseBuffer.getChannelData(0);
+for (let i = 0; i < sr; i++) {
+output[i] = Math.random() * 2 - 1;
+}
+
+this.isPlayingMusic = true;
+this.nextNoteTime = this.ctx.currentTime + 0.05;
+}
+
+updateMusic() {
+if (!this.ctx || !this.isPlayingMusic || this.ctx.state !== 'running') return;
+const secondsPer16th = (60.0 / this.tempo) * 0.25;
+while (this.nextNoteTime < this.ctx.currentTime + 0.12) {
+this.scheduleStep(this.step, this.nextNoteTime, secondsPer16th);
+this.nextNoteTime += secondsPer16th;
+this.step = (this.step + 1) & 31;
 }
 }
 
-toggleMute() {
-this.muted = !this.muted;
-if (this.master && this.ctx) {
-this.master.gain.setValueAtTime(this.muted ? 0 : 0.42, this.ctx.currentTime);
-}
-return this.muted;
+scheduleStep(step, time, dur) {
+// Dark Cyberpunk / Doom D-Minor Phrygian Bassline
+const bassSeq = [
+73.42, 73.42, 0, 73.42, 77.78, 73.42, 0, 65.41,
+73.42, 73.42, 0, 73.42, 87.31, 82.41, 77.78, 65.41,
+73.42, 73.42, 0, 73.42, 77.78, 73.42, 0, 65.41,
+58.27, 58.27, 0, 65.41, 73.42, 0, 73.42, 0
+];
+const leadSeq = [
+293.66, 0, 349.23, 0, 311.13, 0, 293.66, 0,
+261.63, 0, 293.66, 349.23, 440.00, 0, 392.00, 0
+];
+
+const bFreq = bassSeq[step];
+if (bFreq > 0) {
+this.playSynthTone(bFreq, time, dur * 0.85, 'sawtooth', 0.16, 450);
 }
 
-updateMusic(dt, isPlaying) {
-if (!this.ctx || this.muted || !isPlaying) return;
-this.musicTimer += dt;
-const stepDuration = 0.115; // ~130 BPM 16th notes
-if (this.musicTimer >= stepDuration) {
-this.musicTimer -= stepDuration;
-this.playBassStep(this.step);
-this.step = (this.step + 1) % 16;
+if (step >= 16 && leadSeq[step - 16] > 0) {
+this.playSynthTone(leadSeq[step - 16], time, dur * 0.7, 'square', 0.07, 1400);
+}
+
+// Kick on 4-on-the-floor + syncopation
+if (step % 4 === 0 || step === 14 || step === 30) {
+this.playKick(time);
+}
+// Snare on backbeat
+if (step % 8 === 4) {
+this.playSnare(time);
+}
+// Hi-hat on offbeats
+if (step % 2 === 1) {
+this.playHiHat(time);
 }
 }
 
-playBassStep(step) {
-const now = this.ctx.currentTime;
-const freq = this.bassNotes[step % this.bassNotes.length];
-
-// Rolling synthwave saw bass
+playSynthTone(freq, time, dur, type, vol, cutoff) {
 const osc = this.ctx.createOscillator();
 const filter = this.ctx.createBiquadFilter();
 const gain = this.ctx.createGain();
-
-osc.type = 'sawtooth';
-osc.frequency.setValueAtTime(freq, now);
+osc.type = type;
+osc.frequency.setValueAtTime(freq, time);
 
 filter.type = 'lowpass';
-filter.Q.value = 4.5;
-filter.frequency.setValueAtTime(140, now);
-filter.frequency.exponentialRampToValueAtTime(720, now + 0.015);
-filter.frequency.exponentialRampToValueAtTime(110, now + 0.11);
+filter.frequency.setValueAtTime(cutoff, time);
+filter.frequency.exponentialRampToValueAtTime(120, time + dur);
 
-gain.gain.setValueAtTime(0.16, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+gain.gain.setValueAtTime(vol, time);
+gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
 
 osc.connect(filter);
 filter.connect(gain);
-gain.connect(this.compressor);
-
-osc.start(now);
-osc.stop(now + 0.115);
-
-// Kick on 0, 4, 8, 12
-if (step % 4 === 0) {
-const kickOsc = this.ctx.createOscillator();
-const kickGain = this.ctx.createGain();
-kickOsc.type = 'sine';
-kickOsc.frequency.setValueAtTime(135, now);
-kickOsc.frequency.exponentialRampToValueAtTime(32, now + 0.11);
-kickGain.gain.setValueAtTime(0.32, now);
-kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
-kickOsc.connect(kickGain);
-kickGain.connect(this.compressor);
-kickOsc.start(now);
-kickOsc.stop(now + 0.14);
+gain.connect(this.masterGain);
+osc.start(time);
+osc.stop(time + dur);
 }
 
-// Subtle high cyber arpeggio on off-beats
-if (step % 2 === 1) {
-const arpOsc = this.ctx.createOscillator();
-const arpGain = this.ctx.createGain();
-arpOsc.type = 'triangle';
-const arpFreq = this.arpNotes[(step >> 1) % this.arpNotes.length];
-arpOsc.frequency.setValueAtTime(arpFreq, now);
-arpGain.gain.setValueAtTime(0.04, now);
-arpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-arpOsc.connect(arpGain);
-arpGain.connect(this.compressor);
-arpOsc.start(now);
-arpOsc.stop(now + 0.085);
-}
+playKick(time) {
+const osc = this.ctx.createOscillator();
+const gain = this.ctx.createGain();
+osc.frequency.setValueAtTime(130, time);
+osc.frequency.exponentialRampToValueAtTime(32, time + 0.11);
+gain.gain.setValueAtTime(0.35, time);
+gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+osc.connect(gain);
+gain.connect(this.masterGain);
+osc.start(time);
+osc.stop(time + 0.12);
 }
 
-shoot(pitchMod = 1.0) {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
+playSnare(time) {
+const src = this.ctx.createBufferSource();
+src.buffer = this.noiseBuffer;
+const filter = this.ctx.createBiquadFilter();
+filter.type = 'highpass';
+filter.frequency.setValueAtTime(600, time);
+const gain = this.ctx.createGain();
+gain.gain.setValueAtTime(0.18, time);
+gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+src.connect(filter);
+filter.connect(gain);
+gain.connect(this.masterGain);
+src.start(time);
+src.stop(time + 0.12);
+}
+
+playHiHat(time) {
+const src = this.ctx.createBufferSource();
+src.buffer = this.noiseBuffer;
+const filter = this.ctx.createBiquadFilter();
+filter.type = 'highpass';
+filter.frequency.setValueAtTime(5000, time);
+const gain = this.ctx.createGain();
+gain.gain.setValueAtTime(0.05, time);
+gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+src.connect(filter);
+filter.connect(gain);
+gain.connect(this.masterGain);
+src.start(time);
+src.stop(time + 0.04);
+}
+
+sfxShoot(weaponType) {
+if (!this.ctx) return;
+const t = this.ctx.currentTime;
+if (weaponType === 0) {
+// Blaster
 const osc = this.ctx.createOscillator();
 const gain = this.ctx.createGain();
 osc.type = 'sawtooth';
-const startFreq = (580 + Math.random() * 90) * pitchMod;
-osc.frequency.setValueAtTime(startFreq, now);
-osc.frequency.exponentialRampToValueAtTime(110, now + 0.065);
-
-gain.gain.setValueAtTime(0.11, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
-
+osc.frequency.setValueAtTime(750, t);
+osc.frequency.exponentialRampToValueAtTime(90, t + 0.14);
+gain.gain.setValueAtTime(0.3, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
 osc.connect(gain);
-gain.connect(this.compressor);
-osc.start(now);
-osc.stop(now + 0.075);
-}
-
-hit() {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
+gain.connect(this.masterGain);
+osc.start(t);
+osc.stop(t + 0.14);
+} else if (weaponType === 1) {
+// Scatter Shotgun
 const src = this.ctx.createBufferSource();
 src.buffer = this.noiseBuffer;
-
 const filter = this.ctx.createBiquadFilter();
 filter.type = 'bandpass';
-filter.frequency.setValueAtTime(900 + Math.random() * 400, now);
-filter.Q.value = 1.8;
-
+filter.frequency.setValueAtTime(800, t);
+filter.frequency.exponentialRampToValueAtTime(180, t + 0.25);
 const gain = this.ctx.createGain();
-gain.gain.setValueAtTime(0.14, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
-
+gain.gain.setValueAtTime(0.55, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
 src.connect(filter);
 filter.connect(gain);
-gain.connect(this.compressor);
-src.start(now);
-src.stop(now + 0.05);
+gain.connect(this.masterGain);
+src.start(t);
+src.stop(t + 0.25);
+} else {
+// Plasma Rifle
+const osc = this.ctx.createOscillator();
+const gain = this.ctx.createGain();
+osc.type = 'square';
+osc.frequency.setValueAtTime(1100, t);
+osc.frequency.exponentialRampToValueAtTime(220, t + 0.09);
+gain.gain.setValueAtTime(0.24, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+osc.connect(gain);
+gain.connect(this.masterGain);
+osc.start(t);
+osc.stop(t + 0.09);
+}
 }
 
-explode(scale = 1.0) {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
-const dur = Math.min(0.45, 0.16 * scale);
+sfxHit() {
+if (!this.ctx) return;
+const t = this.ctx.currentTime;
+const osc = this.ctx.createOscillator();
+const gain = this.ctx.createGain();
+osc.type = 'triangle';
+osc.frequency.setValueAtTime(190, t);
+osc.frequency.exponentialRampToValueAtTime(55, t + 0.08);
+gain.gain.setValueAtTime(0.3, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+osc.connect(gain);
+gain.connect(this.masterGain);
+osc.start(t);
+osc.stop(t + 0.08);
+}
 
-// Noise burst
+sfxExplosion() {
+if (!this.ctx) return;
+const t = this.ctx.currentTime;
 const src = this.ctx.createBufferSource();
 src.buffer = this.noiseBuffer;
 const filter = this.ctx.createBiquadFilter();
 filter.type = 'lowpass';
-filter.frequency.setValueAtTime(1100, now);
-filter.frequency.exponentialRampToValueAtTime(90, now + dur);
-
+filter.frequency.setValueAtTime(600, t);
+filter.frequency.exponentialRampToValueAtTime(60, t + 0.4);
 const gain = this.ctx.createGain();
-gain.gain.setValueAtTime(Math.min(0.4, 0.22 * scale), now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-
+gain.gain.setValueAtTime(0.5, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
 src.connect(filter);
 filter.connect(gain);
-gain.connect(this.compressor);
-src.start(now);
-src.stop(now + dur + 0.02);
-
-// Sub punch
-const osc = this.ctx.createOscillator();
-const subGain = this.ctx.createGain();
-osc.type = 'sine';
-osc.frequency.setValueAtTime(150, now);
-osc.frequency.exponentialRampToValueAtTime(28, now + dur);
-subGain.gain.setValueAtTime(0.28, now);
-subGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-osc.connect(subGain);
-subGain.connect(this.compressor);
-osc.start(now);
-osc.stop(now + dur + 0.02);
+gain.connect(this.masterGain);
+src.start(t);
+src.stop(t + 0.4);
 }
 
-dash() {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
-const src = this.ctx.createBufferSource();
-src.buffer = this.noiseBuffer;
-const filter = this.ctx.createBiquadFilter();
-filter.type = 'bandpass';
-filter.Q.value = 3.0;
-filter.frequency.setValueAtTime(300, now);
-filter.frequency.exponentialRampToValueAtTime(2200, now + 0.16);
-
-const gain = this.ctx.createGain();
-gain.gain.setValueAtTime(0.22, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
-src.connect(filter);
-filter.connect(gain);
-gain.connect(this.compressor);
-src.start(now);
-src.stop(now + 0.19);
-}
-
-xp(combo = 1) {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
+sfxPickup() {
+if (!this.ctx) return;
+const t = this.ctx.currentTime;
 const osc = this.ctx.createOscillator();
 const gain = this.ctx.createGain();
 osc.type = 'sine';
-const base = 520 * Math.pow(1.035, Math.min(24, combo));
-osc.frequency.setValueAtTime(base, now);
-osc.frequency.exponentialRampToValueAtTime(base * 1.45, now + 0.065);
-
-gain.gain.setValueAtTime(0.09, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
-
+osc.frequency.setValueAtTime(523.25, t);
+osc.frequency.setValueAtTime(783.99, t + 0.06);
+osc.frequency.setValueAtTime(1046.50, t + 0.12);
+gain.gain.setValueAtTime(0.25, t);
+gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
 osc.connect(gain);
-gain.connect(this.compressor);
-osc.start(now);
-osc.stop(now + 0.075);
-}
-
-lightning() {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
-const osc = this.ctx.createOscillator();
-const gain = this.ctx.createGain();
-osc.type = 'square';
-osc.frequency.setValueAtTime(1400, now);
-osc.frequency.exponentialRampToValueAtTime(180, now + 0.09);
-gain.gain.setValueAtTime(0.12, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
-osc.connect(gain);
-gain.connect(this.compressor);
-osc.start(now);
-osc.stop(now + 0.1);
-}
-
-levelUp() {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
-const chord = [440, 554.37, 659.25, 880, 1108.73];
-chord.forEach((f, idx) => {
-const osc = this.ctx.createOscillator();
-const gain = this.ctx.createGain();
-osc.type = 'triangle';
-const start = now + idx * 0.055;
-osc.frequency.setValueAtTime(f, start);
-gain.gain.setValueAtTime(0.0001, now);
-gain.gain.setValueAtTime(0.18, start);
-gain.gain.exponentialRampToValueAtTime(0.001, start + 0.42);
-osc.connect(gain);
-gain.connect(this.compressor);
-osc.start(start);
-osc.stop(start + 0.45);
-});
-}
-
-playerDamage() {
-if (!this.ctx || this.muted) return;
-const now = this.ctx.currentTime;
-const osc = this.ctx.createOscillator();
-const gain = this.ctx.createGain();
-osc.type = 'sawtooth';
-osc.frequency.setValueAtTime(190, now);
-osc.frequency.linearRampToValueAtTime(45, now + 0.28);
-gain.gain.setValueAtTime(0.35, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-osc.connect(gain);
-gain.connect(this.compressor);
-osc.start(now);
-osc.stop(now + 0.32);
+gain.connect(this.masterGain);
+osc.start(t);
+osc.stop(t + 0.24);
 }
 }
 
-const sfx = new SoundEngine();
-
-// ============================================================================
-// 2. SPATIAL HASH GRID FOR ZERO-GC O(1) NEIGHBORHOOD QUERIES
-// ============================================================================
+/**
+* ============================================================================
+* 4. SPATIAL PARTITIONING HASH GRID & OBJECT POOLING
+* ============================================================================
+*/
 class SpatialHashGrid {
-constructor(worldSize, cellSize) {
-this.worldSize = worldSize;
+constructor(cellSize = 2.0) {
 this.cellSize = cellSize;
-this.cols = Math.ceil(worldSize / cellSize);
-this.numCells = this.cols * this.cols;
-this.cells = new Array(this.numCells);
-this.counts = new Int32Array(this.numCells);
-for (let i = 0; i < this.numCells; i++) {
-this.cells[i] = [];
+this.cells = new Map();
 }
-this.queryResults = [];
+clear() {
+this.cells.clear();
+}
+_key(cx, cy) {
+return (cx << 16) ^ cy;
+}
+insert(entityId, x, y, radius) {
+const minX = Math.floor((x - radius) / this.cellSize);
+const maxX = Math.floor((x + radius) / this.cellSize);
+const minY = Math.floor((y - radius) / this.cellSize);
+const maxY = Math.floor((y + radius) / this.cellSize);
+for (let cy = minY; cy <= maxY; cy++) {
+for (let cx = minX; cx <= maxX; cx++) {
+const k = this._key(cx, cy);
+let bucket = this.cells.get(k);
+if (!bucket) {
+bucket = [];
+this.cells.set(k, bucket);
+}
+bucket.push(entityId);
+}
+}
+}
+query(x, y, radius) {
+const results = new Set();
+const minX = Math.floor((x - radius) / this.cellSize);
+const maxX = Math.floor((x + radius) / this.cellSize);
+const minY = Math.floor((y - radius) / this.cellSize);
+const maxY = Math.floor((y + radius) / this.cellSize);
+for (let cy = minY; cy <= maxY; cy++) {
+for (let cx = minX; cx <= maxX; cx++) {
+const bucket = this.cells.get(this._key(cx, cy));
+if (bucket) {
+for (let i = 0; i < bucket.length; i++) results.add(bucket[i]);
+}
+}
+}
+return results;
+}
+}
+
+class ParticlePool {
+constructor(maxParticles = 400) {
+this.max = maxParticles;
+this.active = new Uint8Array(maxParticles);
+this.x = new Float32Array(maxParticles);
+this.y = new Float32Array(maxParticles);
+this.z = new Float32Array(maxParticles);
+this.vx = new Float32Array(maxParticles);
+this.vy = new Float32Array(maxParticles);
+this.vz = new Float32Array(maxParticles);
+this.life = new Float32Array(maxParticles);
+this.maxLife = new Float32Array(maxParticles);
+this.color = new Uint32Array(maxParticles);
+this.size = new Float32Array(maxParticles);
+}
+
+spawn(x, y, z, vx, vy, vz, life, color, size = 0.08) {
+for (let i = 0; i < this.max; i++) {
+if (!this.active[i]) {
+this.active[i] = 1;
+this.x[i] = x; this.y[i] = y; this.z[i] = z;
+this.vx[i] = vx; this.vy[i] = vy; this.vz[i] = vz;
+this.life[i] = life; this.maxLife[i] = life;
+this.color[i] = color; this.size[i] = size;
+return;
+}
+}
+}
+
+burst(x, y, z, count, color, speed = 2.5, size = 0.09) {
+for (let i = 0; i < count; i++) {
+const ang = Math.random() * Math.PI * 2;
+const spd = (0.3 + Math.random() * 0.7) * speed;
+const vz = (Math.random() - 0.35) * speed * 0.8;
+this.spawn(
+x, y, z,
+Math.cos(ang) * spd, Math.sin(ang) * spd, vz,
+0.25 + Math.random() * 0.35, color, size
+);
+}
+}
+
+update(dt, map) {
+for (let i = 0; i < this.max; i++) {
+if (!this.active[i]) continue;
+this.life[i] -= dt;
+if (this.life[i] <= 0) {
+this.active[i] = 0;
+continue;
+}
+const nx = this.x[i] + this.vx[i] * dt;
+const ny = this.y[i] + this.vy[i] * dt;
+if (!map.isSolid(nx | 0, ny | 0)) {
+this.x[i] = nx;
+this.y[i] = ny;
+} else {
+this.vx[i] *= -0.5;
+this.vy[i] *= -0.5;
+}
+this.z[i] += this.vz[i] * dt;
+this.vz[i] -= 2.2 * dt; // Gravity
+if (this.z[i] < -0.45) {
+this.z[i] = -0.45;
+this.vz[i] *= -0.4;
+}
+}
+}
+}
+
+/**
+* ============================================================================
+* 5. ENTITY COMPONENT SYSTEM (ECS)
+* ============================================================================
+*/
+class ECS {
+constructor() {
+this.nextId = 1;
+this.entities = new Set();
+this.transform = new Map(); // { x, y, z, dirX, dirY, radius }
+this.velocity = new Map(); // { vx, vy, speed }
+this.health = new Map(); // { hp, maxHp, hitFlash }
+this.sprite = new Map(); // { texData, scale, zOffset }
+this.ai = new Map(); // { state, type, timer, cooldown, targetX, targetY, score }
+this.projectile = new Map(); // { owner, damage, life, color }
+this.pickup = new Map(); // { kind, value }
+this.light = new Map(); // { r, g, b, radius, flicker }
+this.collider = new Map(); // { solid, isEnemy, isPickup }
+this.toDestroy = new Set();
+}
+
+createEntity() {
+const id = this.nextId++;
+this.entities.add(id);
+return id;
+}
+
+destroyEntity(id) {
+this.toDestroy.add(id);
+}
+
+flushDestroyed() {
+for (const id of this.toDestroy) {
+this.entities.delete(id);
+this.transform.delete(id);
+this.velocity.delete(id);
+this.health.delete(id);
+this.sprite.delete(id);
+this.ai.delete(id);
+this.projectile.delete(id);
+this.pickup.delete(id);
+this.light.delete(id);
+this.collider.delete(id);
+}
+this.toDestroy.clear();
 }
 
 clear() {
-for (let i = 0; i < this.numCells; i++) {
-this.counts[i] = 0;
+this.entities.clear();
+this.transform.clear();
+this.velocity.clear();
+this.health.clear();
+this.sprite.clear();
+this.ai.clear();
+this.projectile.clear();
+this.pickup.clear();
+this.light.clear();
+this.collider.clear();
+this.toDestroy.clear();
+this.nextId = 1;
 }
 }
 
-_coord(val) {
-const c = (val / this.cellSize) | 0;
-return c < 0 ? 0 : c >= this.cols ? this.cols - 1 : c;
+/**
+* ============================================================================
+* 6. PROCEDURAL DUNGEON GENERATOR & LIGHTING
+* ============================================================================
+*/
+class LevelMap {
+constructor(width = 40, height = 40) {
+this.width = width;
+this.height = height;
+this.grid = new Uint8Array(width * height);
+this.explored = new Uint8Array(width * height);
+this.lightR = new Float32Array(width * height);
+this.lightG = new Float32Array(width * height);
+this.lightB = new Float32Array(width * height);
+this.staticLights = [];
+this.rooms = [];
 }
 
-insert(entity) {
-const cx = this._coord(entity.x);
-const cy = this._coord(entity.y);
-const idx = cy * this.cols + cx;
-const count = this.counts[idx];
-this.cells[idx][count] = entity;
-this.counts[idx] = count + 1;
+idx(x, y) { return y * this.width + x; }
+
+isSolid(x, y) {
+if (x < 0 || x >= this.width || y < 0 || y >= this.height) return true;
+return this.grid[y * this.width + x] > 0;
 }
 
-query(x, y, radius) {
-this.queryResults.length = 0;
-const minX = this._coord(x - radius);
-const maxX = this._coord(x + radius);
-const minY = this._coord(y - radius);
-const maxY = this._coord(y + radius);
-
-for (let cy = minY; cy <= maxY; cy++) {
-const rowOffset = cy * this.cols;
-for (let cx = minX; cx <= maxX; cx++) {
-const idx = rowOffset + cx;
-const count = this.counts[idx];
-const bucket = this.cells[idx];
-for (let i = 0; i < count; i++) {
-this.queryResults.push(bucket[i]);
+hasLineOfSight(x0, y0, x1, y1) {
+const dx = x1 - x0, dy = y1 - y0;
+const dist = Math.hypot(dx, dy);
+const steps = Math.ceil(dist * 4);
+for (let i = 1; i < steps; i++) {
+const t = i / steps;
+const cx = (x0 + dx * t) | 0;
+const cy = (y0 + dy * t) | 0;
+if (this.isSolid(cx, cy)) return false;
 }
-}
-}
-return this.queryResults;
-}
+return true;
 }
 
-// ============================================================================
-// 3. WORLD CONSTANTS & PRE-ALLOCATED OBJECT POOLS
-// ============================================================================
-const WORLD_SIZE = 2800;
-const HALF_WORLD = WORLD_SIZE / 2;
-const spatialGrid = new SpatialHashGrid(WORLD_SIZE, 120);
+generate(levelNum, ecs, assets) {
+const rng = new PRNG(levelNum * 7919 + 101);
+this.grid.fill(1);
+this.explored.fill(0);
+this.staticLights = [];
+this.rooms = [];
 
-// Pool factory helper
-function createPool(size, factory) {
-const arr = new Array(size);
-for (let i = 0; i < size; i++) arr[i] = factory();
-return arr;
+const numRooms = Math.min(18, 7 + levelNum * 2);
+const wallTypes = [1, 2, 3, 4];
+
+for (let i = 0; i < numRooms * 4 && this.rooms.length < numRooms; i++) {
+const w = rng.int(4, 8);
+const h = rng.int(4, 8);
+const rx = rng.int(2, this.width - w - 3);
+const ry = rng.int(2, this.height - h - 3);
+
+let overlap = false;
+for (const rm of this.rooms) {
+if (rx < rm.x + rm.w + 1 && rx + w + 1 > rm.x &&
+ry < rm.y + rm.h + 1 && ry + h + 1 > rm.y) {
+overlap = true;
+break;
 }
+}
+if (overlap) continue;
 
-const MAX_PARTICLES = 1400;
-const particles = createPool(MAX_PARTICLES, () => ({
-active: false, x: 0, y: 0, vx: 0, vy: 0,
-size: 2, alpha: 1, decay: 1, drag: 0.96,
-color: '#00f3ff', isSpark: true
-}));
-
-const MAX_SHOCKWAVES = 80;
-const shockwaves = createPool(MAX_SHOCKWAVES, () => ({
-active: false, x: 0, y: 0, radius: 1, maxRadius: 80,
-alpha: 1, speed: 300, color: '#00f3ff', width: 3
-}));
-
-const MAX_TEXTS = 160;
-const floatingTexts = createPool(MAX_TEXTS, () => ({
-active: false, x: 0, y: 0, vx: 0, vy: 0,
-text: '', color: '#fff', alpha: 1, life: 0, maxLife: 0.65, size: 14
-}));
-
-const MAX_PROJECTILES = 700;
-const projectiles = createPool(MAX_PROJECTILES, () => ({
-active: false, isEnemy: false, isMissile: false,
-x: 0, y: 0, px: 0, py: 0, vx: 0, vy: 0,
-radius: 5, dmg: 15, pierce: 0, life: 0, maxLife: 2,
-color: '#00f3ff', hitIds: new Int32Array(8), hitCount: 0,
-turnRate: 0, aoeRadius: 0
-}));
-
-const MAX_ENEMIES = 360;
-let nextEnemyId = 1;
-const enemies = createPool(MAX_ENEMIES, () => ({
-active: false, id: 0, type: 0,
-x: 0, y: 0, vx: 0, vy: 0,
-radius: 14, hp: 30, maxHp: 30, speed: 120,
-color: '#ff2a55', xpValue: 10, scoreValue: 50,
-angle: 0, stateTimer: 0, phase: 0, flashTimer: 0, slowTimer: 0,
-chargeDirX: 0, chargeDirY: 0, isCharging: false, isBoss: false
-}));
-
-const MAX_ORBS = 550;
-const xpOrbs = createPool(MAX_ORBS, () => ({
-active: false, x: 0, y: 0, vx: 0, vy: 0,
-val: 10, radius: 5, color: '#00ff88', magnetized: false, pulse: 0
-}));
-
-const MAX_GHOSTS = 50;
-const ghosts = createPool(MAX_GHOSTS, () => ({
-active: false, x: 0, y: 0, angle: 0, alpha: 0.6, color: '#00f3ff'
-}));
-
-const MAX_LIGHTNING = 45;
-const lightningArcs = createPool(MAX_LIGHTNING, () => ({
-active: false, x1: 0, y1: 0, x2: 0, y2: 0, alpha: 1, color: '#00f3ff'
-}));
-
-// Reactive Grid Distortion Wells (Geometry Wars style)
-const MAX_WELLS = 24;
-const gridWells = createPool(MAX_WELLS, () => ({
-active: false, x: 0, y: 0, radius: 140, strength: 30, life: 0, maxLife: 0.4
-}));
-
-function spawnWell(x, y, radius, strength, duration = 0.35) {
-for (let i = 0; i < MAX_WELLS; i++) {
-const w = gridWells[i];
-if (!w.active) {
-w.active = true; w.x = x; w.y = y;
-w.radius = radius; w.strength = strength;
-w.life = duration; w.maxLife = duration;
-return;
+const wallTex = wallTypes[this.rooms.length % wallTypes.length];
+// Paint surrounding walls with room theme texture
+for (let y = ry - 1; y <= ry + h; y++) {
+for (let x = rx - 1; x <= rx + w; x++) {
+if (y === ry - 1 || y === ry + h || x === rx - 1 || x === rx + w) {
+this.grid[this.idx(x, y)] = wallTex;
+} else {
+this.grid[this.idx(x, y)] = 0;
 }
 }
 }
 
-function spawnParticle(x, y, vx, vy, color, size = 3, decay = 2.2, isSpark = true) {
-for (let i = 0; i < MAX_PARTICLES; i++) {
-const p = particles[i];
-if (!p.active) {
-p.active = true;
-p.x = x; p.y = y; p.vx = vx; p.vy = vy;
-p.color = color; p.size = size;
-p.alpha = 1; p.decay = decay;
-p.drag = isSpark ? 0.94 : 0.9;
-p.isSpark = isSpark;
-return;
+const cx = Math.floor(rx + w / 2) + 0.5;
+const cy = Math.floor(ry + h / 2) + 0.5;
+this.rooms.push({ x: rx, y: ry, w, h, cx, cy, theme: wallTex });
+
+// Add thematic room light
+const lightColors = [
+[0.6, 0.75, 1.0],
+[1.0, 0.75, 0.35],
+[0.2, 0.95, 0.9],
+[1.0, 0.35, 0.35]
+];
+const lc = lightColors[(wallTex - 1) % 4];
+this.staticLights.push({
+x: cx, y: cy,
+r: lc[0], g: lc[1], b: lc[2],
+radius: Math.max(w, h) * 0.95
+});
 }
+
+// Carve corridors connecting rooms
+for (let i = 1; i < this.rooms.length; i++) {
+const a = this.rooms[i - 1];
+const b = this.rooms[i];
+let cx = a.cx | 0, cy = a.cy | 0;
+const tx = b.cx | 0, ty = b.cy | 0;
+
+while (cx !== tx) {
+this.grid[this.idx(cx, cy)] = 0;
+cx += (tx > cx ? 1 : -1);
+}
+while (cy !== ty) {
+this.grid[this.idx(cx, cy)] = 0;
+cy += (ty > cy ? 1 : -1);
+}
+this.grid[this.idx(tx, ty)] = 0;
+}
+
+// Populate rooms with enemies, pickups, pillars, and exit portal
+for (let i = 1; i < this.rooms.length; i++) {
+const rm = this.rooms[i];
+const isLastRoom = (i === this.rooms.length - 1);
+
+if (isLastRoom) {
+// Spawn Exit Portal & Level Boss
+this.spawnPortal(ecs, assets, rm.cx, rm.cy);
+this.grid[this.idx(rm.cx | 0, rm.y - 1)] = 5;
+this.spawnEnemy(ecs, assets, rm.cx + 1.0, rm.cy, 'boss', levelNum);
+continue;
+}
+
+// Decorative Light Pillar in larger rooms
+if (rm.w >= 6 && rm.h >= 6 && rng.next() < 0.65) {
+this.spawnPillar(ecs, assets, rm.cx, rm.cy);
+}
+
+// Spawn Hostiles
+const enemyCount = rng.int(1, 2 + Math.floor(levelNum * 0.7));
+for (let e = 0; e < enemyCount; e++) {
+const ex = rm.x + 1 + rng.next() * (rm.w - 2);
+const ey = rm.y + 1 + rng.next() * (rm.h - 2);
+if (Math.hypot(ex - rm.cx, ey - rm.cy) < 0.9) continue;
+const type = rng.next() < 0.65 ? 'grunt' : 'stalker';
+this.spawnEnemy(ecs, assets, ex, ey, type, levelNum);
+}
+
+// Spawn Pickups
+if (rng.next() < 0.75) {
+const px = rm.x + 1 + rng.next() * (rm.w - 2);
+const py = rm.y + 1 + rng.next() * (rm.h - 2);
+const roll = rng.next();
+if (roll < 0.45) this.spawnPickup(ecs, assets, px, py, 'health', 30);
+else if (roll < 0.85) this.spawnPickup(ecs, assets, px, py, 'ammo', 20);
+else this.spawnPickup(ecs, assets, px, py, 'weapon', 1);
 }
 }
 
-function spawnBurst(x, y, count, color, speedMin = 60, speedMax = 340, size = 3) {
-for (let i = 0; i < count; i++) {
-const ang = Math.random() * Math.PI * 2;
-const spd = speedMin + Math.random() * (speedMax - speedMin);
-spawnParticle(
-x, y,
-Math.cos(ang) * spd,
-Math.sin(ang) * spd,
-color,
-size * (0.6 + Math.random() * 0.7),
-1.4 + Math.random() * 1.5,
-Math.random() > 0.25
+return { startX: this.rooms[0].cx, startY: this.rooms[0].cy };
+}
+
+spawnEnemy(ecs, assets, x, y, type, levelNum) {
+const id = ecs.createEntity();
+const isBoss = type === 'boss';
+const isStalker = type === 'stalker';
+const scale = isBoss ? 1.15 : (isStalker ? 0.85 : 0.95);
+const hp = isBoss ? 160 + levelNum * 45 : (isStalker ? 35 + levelNum * 10 : 50 + levelNum * 12);
+const speed = isBoss ? 1.9 : (isStalker ? 3.2 : 2.1);
+
+ecs.transform.set(id, { x, y, z: 0, dirX: 1, dirY: 0, radius: 0.35 });
+ecs.velocity.set(id, { vx: 0, vy: 0, speed });
+ecs.health.set(id, { hp, maxHp: hp, hitFlash: 0 });
+ecs.sprite.set(id, {
+texData: assets.sprites[type],
+scale,
+zOffset: 0
+});
+ecs.ai.set(id, {
+state: 'PATROL',
+type,
+timer: Math.random() * 2,
+cooldown: 1.0,
+targetX: x,
+targetY: y,
+score: isBoss ? 500 : (isStalker ? 150 : 100)
+});
+ecs.collider.set(id, { solid: true, isEnemy: true, isPickup: false });
+}
+
+spawnPickup(ecs, assets, x, y, kind, value) {
+const id = ecs.createEntity();
+ecs.transform.set(id, { x, y, z: -0.25, dirX: 0, dirY: 0, radius: 0.35 });
+ecs.sprite.set(id, {
+texData: kind === 'health' ? assets.sprites.health : (kind === 'ammo' ? assets.sprites.ammo : assets.sprites.Weapon),
+scale: 0.55,
+zOffset: -0.2
+});
+ecs.pickup.set(id, { kind, value });
+ecs.collider.set(id, { solid: false, isEnemy: false, isPickup: true });
+}
+
+spawnPillar(ecs, assets, x, y) {
+const id = ecs.createEntity();
+ecs.transform.set(id, { x, y, z: 0, dirX: 0, dirY: 0, radius: 0.32 });
+ecs.sprite.set(id, { texData: assets.sprites.pillar, scale: 1.0, zOffset: 0 });
+ecs.collider.set(id, { solid: true, isEnemy: false, isPickup: false });
+ecs.light.set(id, { r: 0.2, g: 0.85, b: 1.0, radius: 4.5, flicker: true });
+}
+
+spawnPortal(ecs, assets, x, y) {
+const id = ecs.createEntity();
+ecs.transform.set(id, { x, y, z: 0, dirX: 0, dirY: 0, radius: 0.45 });
+ecs.sprite.set(id, { texData: assets.sprites.portal, scale: 1.0, zOffset: 0 });
+ecs.pickup.set(id, { kind: 'portal', value: 1 });
+ecs.collider.set(id, { solid: false, isEnemy: false, isPickup: true });
+ecs.light.set(id, { r: 0.3, g: 0.9, b: 1.0, radius: 6.5, flicker: true });
+}
+
+bakeLighting(ecs, player, muzzleFlash, time) {
+// Base ambient light
+this.lightR.fill(0.16);
+this.lightG.fill(0.18);
+this.lightB.fill(0.24);
+
+const applyLight = (lx, ly, r, g, b, rad) => {
+const minX = Math.max(0, Math.floor(lx - rad));
+const maxX = Math.min(this.width - 1, Math.ceil(lx + rad));
+const minY = Math.max(0, Math.floor(ly - rad));
+const maxY = Math.min(this.height - 1, Math.ceil(ly + rad));
+const radSq = rad * rad;
+
+for (let y = minY; y <= maxY; y++) {
+for (let x = minX; x <= maxX; x++) {
+const dx = (x + 0.5) - lx;
+const dy = (y + 0.5) - ly;
+const dSq = dx * dx + dy * dy;
+if (dSq < radSq) {
+const atten = 1.0 - Math.sqrt(dSq) / rad;
+const idx = y * this.width + x;
+this.lightR[idx] += r * atten;
+this.lightG[idx] += g * atten;
+this.lightB[idx] += b * atten;
+}
+}
+}
+};
+
+// Static Room Lights
+for (let i = 0; i < this.staticLights.length; i++) {
+const sl = this.staticLights[i];
+applyLight(sl.x, sl.y, sl.r * 0.65, sl.g * 0.65, sl.b * 0.65, sl.radius);
+}
+
+// Dynamic ECS Lights (Projectiles, Pillars, Portals)
+for (const [id, l] of ecs.light.entries()) {
+const tr = ecs.transform.get(id);
+if (!tr) continue;
+const flk = l.flicker ? (0.88 + 0.12 * Math.sin(time * 9 + id)) : 1.0;
+applyLight(tr.x, tr.y, l.r * flk, l.g * flk, l.b * flk, l.radius);
+}
+
+// Player Headlamp + Muzzle Flash
+const flashBoost = muzzleFlash * 1.4;
+applyLight(
+player.x, player.y,
+0.55 + flashBoost,
+0.6 + flashBoost * 0.85,
+0.65 + flashBoost * 0.4,
+5.5 + muzzleFlash * 4.5
 );
 }
 }
 
-function spawnShockwave(x, y, maxRadius, color, speed = 420, width = 3.5) {
-for (let i = 0; i < MAX_SHOCKWAVES; i++) {
-const s = shockwaves[i];
-if (!s.active) {
-s.active = true;
-s.x = x; s.y = y;
-s.radius = 4; s.maxRadius = maxRadius;
-s.alpha = 1; s.speed = speed;
-s.color = color; s.width = width;
-return;
+/**
+* ============================================================================
+* 7. SOFTWARE 3D RAYCASTER & SPRITE RENDERING ENGINE
+* ============================================================================
+*/
+class SoftwareRenderer {
+constructor(canvas, assets) {
+this.canvas = canvas;
+this.ctx = canvas.getContext('2d', { alpha: false });
+this.assets = assets;
+this.width = 480;
+this.height = 270;
+this.canvas.width = this.width;
+this.canvas.height = this.height;
+
+this.imgData = this.ctx.createImageData(this.width, this.height);
+this.buf32 = new Uint32Array(this.imgData.data.buffer);
+this.zBuffer = new Float32Array(this.width);
+}
+
+renderWorld(player, map, ecs, particles, time) {
+const W = this.width;
+const H = this.height;
+const buf = this.buf32;
+
+const posX = player.x;
+const posY = player.y;
+const dirX = Math.cos(player.angle);
+const dirY = Math.sin(player.angle);
+const planeX = -dirY * 0.66;
+const planeY = dirX * 0.66;
+
+// Camera vertical bob & pitch offset
+const bobOffset = Math.sin(player.bobPhase) * 5.0 * player.moveSpeedRatio;
+const horizon = (H >> 1) + Math.floor(player.pitch + bobOffset);
+
+// ------------------------------------------------------------------------
+// A. FLOOR & CEILING HORIZONTAL SCANLINE CASTING
+// ------------------------------------------------------------------------
+const floorTex = this.assets.textures[6];
+const ceilTex = this.assets.textures[7];
+const rayDirX0 = dirX - planeX;
+const rayDirY0 = dirY - planeY;
+const rayDirX1 = dirX + planeX;
+const rayDirY1 = dirY + planeY;
+const posZ = 0.5 * H;
+
+for (let y = 0; y < H; y++) {
+const isFloor = y > horizon;
+const p = isFloor ? (y - horizon) : (horizon - y);
+if (p === 0) continue;
+
+const rowDistance = posZ / p;
+const stepX = rowDistance * (rayDirX1 - rayDirX0) / W;
+const stepY = rowDistance * (rayDirY1 - rayDirY0) / W;
+let floorX = posX + rowDistance * rayDirX0;
+let floorY = posY + rowDistance * rayDirY0;
+
+const tex = isFloor ? floorTex : ceilTex;
+const distFog = Math.max(0.05, 1.0 - rowDistance / 15.0);
+const rowOffset = y * W;
+
+for (let x = 0; x < W; x++) {
+const cellX = floorX | 0;
+const cellY = floorY | 0;
+const tx = ((floorX * TEX_SIZE) | 0) & (TEX_SIZE - 1);
+const ty = ((floorY * TEX_SIZE) | 0) & (TEX_SIZE - 1);
+floorX += stepX;
+floorY += stepY;
+
+const color = tex[(ty << 6) + tx];
+let lr = 0.15, lg = 0.15, lb = 0.2;
+if (cellX >= 0 && cellX < map.width && cellY >= 0 && cellY < map.height) {
+const mIdx = cellY * map.width + cellX;
+lr = map.lightR[mIdx];
+lg = map.lightG[mIdx];
+lb = map.lightB[mIdx];
+}
+
+const r = Math.min(255, ((color & 0xFF) * lr * distFog) | 0);
+const g = Math.min(255, (((color >> 8) & 0xFF) * lg * distFog) | 0);
+const b = Math.min(255, (((color >> 16) & 0xFF) * lb * distFog) | 0);
+buf[rowOffset + x] = (0xFF000000 | (b << 16) | (g << 8) | r) >>> 0;
+}
+}
+
+// ------------------------------------------------------------------------
+// B. WALL DDA RAYCASTING
+// ------------------------------------------------------------------------
+for (let x = 0; x < W; x++) {
+const cameraX = 2 * x / W - 1;
+const rayDirX = dirX + planeX * cameraX;
+const rayDirY = dirY + planeY * cameraX;
+
+let mapX = posX | 0;
+let mapY = posY | 0;
+
+const deltaDistX = Math.abs(1 / (rayDirX || 1e-10));
+const deltaDistY = Math.abs(1 / (rayDirY || 1e-10));
+
+let stepX, sideDistX, stepY, sideDistY;
+if (rayDirX < 0) {
+stepX = -1;
+sideDistX = (posX - mapX) * deltaDistX;
+} else {
+stepX = 1;
+sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+}
+if (rayDirY < 0) {
+stepY = -1;
+sideDistY = (posY - mapY) * deltaDistY;
+} else {
+stepY = 1;
+sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+}
+
+let hit = 0, side = 0, steps = 0;
+while (hit === 0 && steps < 48) {
+if (sideDistX < sideDistY) {
+sideDistX += deltaDistX;
+mapX += stepX;
+side = 0;
+} else {
+sideDistY += deltaDistY;
+mapY += stepY;
+side = 1;
+}
+if (mapX < 0 || mapX >= map.width || mapY < 0 || mapY >= map.height) {
+hit = 1;
+break;
+}
+const cell = map.grid[mapY * map.width + mapX];
+map.explored[mapY * map.width + mapX] = 1;
+if (cell > 0) hit = cell;
+steps++;
+}
+
+const perpWallDist = Math.max(0.05, side === 0
+? (mapX - posX + (1 - stepX) / 2) / rayDirX
+: (mapY - posY + (1 - stepY) / 2) / rayDirY
+);
+this.zBuffer[x] = perpWallDist;
+
+const lineHeight = (H / perpWallDist) | 0;
+let drawStart = Math.max(0, (-lineHeight >> 1) + horizon);
+let drawEnd = Math.min(H - 1, (lineHeight >> 1) + horizon);
+
+let wallX = side === 0 ? (posY + perpWallDist * rayDirY) : (posX + perpWallDist * rayDirX);
+wallX -= Math.floor(wallX);
+let texX = (wallX * TEX_SIZE) | 0;
+if ((side === 0 && rayDirX > 0) || (side === 1 && rayDirY < 0)) {
+texX = TEX_SIZE - texX - 1;
+}
+
+const tex = this.assets.textures[hit] || this.assets.textures[1];
+const step = TEX_SIZE / lineHeight;
+let texPos = (drawStart - horizon + (lineHeight >> 1)) * step;
+
+// Sample Light at the tile immediately in front of the wall face
+const lightSampleX = Math.max(0, Math.min(map.width - 1, side === 0 ? mapX - stepX : mapX));
+const lightSampleY = Math.max(0, Math.min(map.height - 1, side === 1 ? mapY - stepY : mapY));
+const lIdx = lightSampleY * map.width + lightSampleX;
+
+const sideShade = side === 1 ? 0.76 : 1.0;
+const distFog = Math.max(0.04, 1.0 - perpWallDist / 16.0) * sideShade;
+const lr = map.lightR[lIdx] * distFog;
+const lg = map.lightG[lIdx] * distFog;
+const lb = map.lightB[lIdx] * distFog;
+
+for (let y = drawStart; y <= drawEnd; y++) {
+const texY = (texPos | 0) & (TEX_SIZE - 1);
+texPos += step;
+const color = tex[(texY << 6) + texX];
+const r = Math.min(255, ((color & 0xFF) * lr) | 0);
+const g = Math.min(255, (((color >> 8) & 0xFF) * lg) | 0);
+const b = Math.min(255, (((color >> 16) & 0xFF) * lb) | 0);
+buf[y * W + x] = (0xFF000000 | (b << 16) | (g << 8) | r) >>> 0;
+}
+}
+
+// ------------------------------------------------------------------------
+// C. SPRITES & PARTICLESDEPTH SORTING & PROJECTION
+// ------------------------------------------------------------------------
+const renderList = [];
+for (const [id, spr] of ecs.sprite.entries()) {
+const tr = ecs.transform.get(id);
+if (!tr) continue;
+const dx = tr.x - posX;
+const dy = tr.y - posY;
+const distSq = dx * dx + dy * dy;
+if (distSq < 256) {
+const hlth = ecs.health.get(id);
+renderList.push({
+isParticle: false,
+x: tr.x, y: tr.y, z: spr.zOffset,
+distSq,
+texData: spr.texData,
+scale: spr.scale,
+hitFlash: hlth ? hlth.hitFlash : 0,
+unlit: ecs.projectile.has(id) || ecs.pickup.has(id)
+});
+}
+}
+
+for (let i = 0; i < particles.max; i++) {
+if (!particles.active[i]) continue;
+const dx = particles.x[i] - posX;
+const dy = particles.y[i] - posY;
+const distSq = dx * dx + dy * dy;
+if (distSq < 196) {
+renderList.push({
+isParticle: true,
+x: particles.x[i], y: particles.y[i], z: particles.z[i],
+distSq,
+color: particles.color[i],
+size: particles.size[i]
+});
+}
+}
+
+renderList.sort((a, b) => b.distSq - a.distSq);
+
+const invDet = 1.0 / (planeX * dirY - dirX * planeY);
+
+for (let i = 0; i < renderList.length; i++) {
+const item = renderList[i];
+const spriteX = item.x - posX;
+const spriteY = item.y - posY;
+
+const transformX = invDet * (dirY * spriteX - dirX * spriteY);
+const transformY = invDet * (-planeY * spriteX + planeX * spriteY);
+if (transformY <= 0.12) continue;
+
+const spriteScreenX = ((W / 2) * (1 + transformX / transformY)) | 0;
+const vMoveScreen = ((-item.z * H) / transformY) | 0;
+
+if (item.isParticle) {
+const pSize = Math.max(1, ((H / transformY) * item.size) | 0);
+const startX = Math.max(0, spriteScreenX - (pSize >> 1));
+const endX = Math.min(W - 1, spriteScreenX + (pSize >> 1));
+const startY = Math.max(0, horizon + vMoveScreen - (pSize >> 1));
+const endY = Math.min(H - 1, horizon + vMoveScreen + (pSize >> 1));
+
+for (let sx = startX; sx <= endX; sx++) {
+if (transformY >= this.zBuffer[sx]) continue;
+for (let sy = startY; sy <= endY; sy++) {
+buf[sy * W + sx] = item.color;
+}
+}
+continue;
+}
+
+const spriteHeight = Math.abs(((H / transformY) * item.scale) | 0);
+const spriteWidth = spriteHeight;
+if (spriteHeight === 0) continue;
+
+const drawStartY = Math.max(0, (-spriteHeight >> 1) + horizon + vMoveScreen);
+const drawEndY = Math.min(H - 1, (spriteHeight >> 1) + horizon + vMoveScreen);
+const drawStartX = Math.max(0, (-spriteWidth >> 1) + spriteScreenX);
+const drawEndX = Math.min(W - 1, (spriteWidth >> 1) + spriteScreenX);
+
+const cellX = Math.max(0, Math.min(map.width - 1, item.x | 0));
+const cellY = Math.max(0, Math.min(map.height - 1, item.y | 0));
+const lIdx = cellY * map.width + cellX;
+const fog = Math.max(0.1, 1.0 - transformY / 16.0);
+const lr = item.unlit ? 1.0 : Math.min(1.4, map.lightR[lIdx] * fog);
+const lg = item.unlit ? 1.0 : Math.min(1.4, map.lightG[lIdx] * fog);
+const lb = item.unlit ? 1.0 : Math.min(1.4, map.lightB[lIdx] * fog);
+
+const tex = item.texData;
+const flash = item.hitFlash > 0;
+
+for (let stripe = drawStartX; stripe <= drawEndX; stripe++) {
+if (transformY >= this.zBuffer[stripe]) continue;
+const texX = (((stripe - ((-spriteWidth >> 1) + spriteScreenX)) * TEX_SIZE) / spriteWidth) | 0;
+if (texX < 0 || texX >= TEX_SIZE) continue;
+
+for (let y = drawStartY; y <= drawEndY; y++) {
+const d = y - vMoveScreen - horizon + (spriteHeight >> 1);
+const texY = ((d * TEX_SIZE) / spriteHeight) | 0;
+if (texY < 0 || texY >= TEX_SIZE) continue;
+
+const color = tex[(texY << 6) + texX];
+if ((color >>> 24) === 0) continue; // Transparent pixel
+
+if (flash) {
+buf[y * W + stripe] = 0xFFFFFFFF;
+} else {
+const r = Math.min(255, ((color & 0xFF) * lr) | 0);
+const g = Math.min(255, (((color >> 8) & 0xFF) * lg) | 0);
+const b = Math.min(255, (((color >> 16) & 0xFF) * lb) | 0);
+buf[y * W + stripe] = (0xFF000000 | (b << 16) | (g << 8) | r) >>> 0;
+}
 }
 }
 }
 
-function spawnFloatingText(x, y, text, color = '#fff', size = 14) {
-for (let i = 0; i < MAX_TEXTS; i++) {
-const t = floatingTexts[i];
-if (!t.active) {
-t.active = true;
-t.x = x + (Math.random() - 0.5) * 16;
-t.y = y - 10;
-t.vx = (Math.random() - 0.5) * 45;
-t.vy = -75 - Math.random() * 35;
-t.text = text;
-t.color = color;
-t.alpha = 1;
-t.life = 0;
-t.maxLife = 0.65;
-t.size = size;
-return;
+this.ctx.putImageData(this.imgData, 0, 0);
+}
+
+renderHUD(player, map, ecs, gameState) {
+const ctx = this.ctx;
+const W = this.width;
+const H = this.height;
+
+// 1. First-Person Weapon Viewmodel
+this.drawWeaponViewmodel(ctx, W, H, player);
+
+// 2. Screen Damage / Pickup Flash Overlays
+if (player.damageFlash > 0) {
+ctx.fillStyle = `rgba(255, 20, 20, ${Math.min(0.55, player.damageFlash)})`;
+ctx.fillRect(0, 0, W, H);
+}
+if (player.bonusFlash > 0) {
+ctx.fillStyle = `rgba(40, 240, 255, ${Math.min(0.35, player.bonusFlash)})`;
+ctx.fillRect(0, 0, W, H);
+}
+
+// 3. Crosshair
+const cx = W >> 1, cy = H >> 1;
+ctx.strokeStyle = '#00ffcc';
+ctx.lineWidth = 1;
+ctx.beginPath();
+ctx.moveTo(cx - 6, cy); ctx.lineTo(cx - 2, cy);
+ctx.moveTo(cx + 2, cy); ctx.lineTo(cx + 6, cy);
+ctx.moveTo(cx, cy - 6); ctx.lineTo(cx, cy - 2);
+ctx.moveTo(cx, cy + 2); ctx.lineTo(cx, cy + 6);
+ctx.stroke();
+
+// 4. Mini-Map (Top Left)
+const mmScale = 3;
+const mmPad = 8;
+ctx.fillStyle = 'rgba(5, 10, 18, 0.78)';
+ctx.fillRect(mmPad - 2, mmPad - 2, map.width * mmScale + 4, map.height * mmScale + 4);
+ctx.strokeStyle = '#00ffcc';
+ctx.strokeRect(mmPad - 2, mmPad - 2, map.width * mmScale + 4, map.height * mmScale + 4);
+
+for (let y = 0; y < map.height; y++) {
+for (let x = 0; x < map.width; x++) {
+const idx = y * map.width + x;
+if (!map.explored[idx]) continue;
+if (map.grid[idx] > 0) {
+ctx.fillStyle = map.grid[idx] === 5 ? '#00ffff' : '#3a5268';
+ctx.fillRect(mmPad + x * mmScale, mmPad + y * mmScale, mmScale, mmScale);
+} else {
+ctx.fillStyle = '#101822';
+ctx.fillRect(mmPad + x * mmScale, mmPad + y * mmScale, mmScale, mmScale);
 }
 }
 }
 
-function spawnLightningArc(x1, y1, x2, y2, color = '#00f3ff') {
-for (let i = 0; i < MAX_LIGHTNING; i++) {
-const l = lightningArcs[i];
-if (!l.active) {
-l.active = true;
-l.x1 = x1; l.y1 = y1; l.x2 = x2; l.y2 = y2;
-l.alpha = 1.0; l.color = color;
-return;
+// Entities on Mini-Map
+for (const [id, tr] of ecs.transform.entries()) {
+const gx = tr.x | 0, gy = tr.y | 0;
+if (!map.explored[gy * map.width + gx]) continue;
+if (ecs.ai.has(id)) {
+ctx.fillStyle = '#ff3333';
+ctx.fillRect(mmPad + tr.x * mmScale - 1, mmPad + tr.y * mmScale - 1, 2, 2);
+} else if (ecs.pickup.has(id)) {
+const pk = ecs.pickup.get(id);
+ctx.fillStyle = pk.kind === 'portal' ? '#00ffff' : '#44ff66';
+ctx.fillRect(mmPad + tr.x * mmScale - 1, mmPad + tr.y * mmScale - 1, 2, 2);
 }
 }
+
+// Player on Mini-Map
+const px = mmPad + player.x * mmScale;
+const py = mmPad + player.y * mmScale;
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(px - 1.5, py - 1.5, 3, 3);
+ctx.strokeStyle = '#00ffcc';
+ctx.beginPath();
+ctx.moveTo(px, py);
+ctx.lineTo(px + Math.cos(player.angle) * 6, py + Math.sin(player.angle) * 6);
+ctx.stroke();
+
+// 5. Bottom Status Bar
+ctx.fillStyle = 'rgba(8, 12, 20, 0.88)';
+ctx.fillRect(0, H - 34, W, 34);
+ctx.strokeStyle = '#00ffcc';
+ctx.beginPath();
+ctx.moveTo(0, H - 34); ctx.lineTo(W, H - 34);
+ctx.stroke();
+
+ctx.font = 'bold 11px Courier New';
+// Health Bar
+ctx.fillStyle = '#88aabb';
+ctx.fillText('VITALITY', 12, H - 20);
+ctx.fillStyle = '#221118';
+ctx.fillRect(12, H - 15, 90, 9);
+const hpPct = Math.max(0, player.hp / player.maxHp);
+ctx.fillStyle = hpPct > 0.35 ? '#00ff88' : '#ff2244';
+ctx.fillRect(12, H - 15, 90 * hpPct, 9);
+ctx.fillStyle = '#ffffff';
+ctx.fillText(`${Math.ceil(player.hp)}%`, 108, H - 7);
+
+// Weapon & Ammo
+const wNames = ['PULSE BLASTER', 'RIOT SCATTERGUN', 'PLASMA RIFLE'];
+ctx.fillStyle = '#88aabb';
+ctx.fillText(`ARMAMENT [1-3]: ${wNames[player.weapon]}`, 155, H - 20);
+ctx.fillStyle = '#ffcc00';
+const ammoText = player.weapon === 0 ? 'INF' : `${player.ammo}`;
+ctx.fillText(`CELLS: ${ammoText}`, 155, H - 7);
+
+// Sector, Enemies & Score
+ctx.fillStyle = '#00ffcc';
+ctx.fillText(`SECTOR: 0${gameState.level}`, 340, H - 20);
+ctx.fillStyle = '#ffffff';
+ctx.fillText(`SCORE: ${gameState.score}`, 340, H - 7);
+
+ctx.fillStyle = '#ff6666';
+ctx.fillText(`HOSTILES: ${gameState.enemiesRemaining}`, W - 95, H - 260);
+if (gameState.enemiesRemaining === 0) {
+ctx.fillStyle = '#00ffff';
+ctx.fillText(`LOCATE PORTAL`, W - 95, H - 246);
 }
 
-// ============================================================================
-// 4. ROGUELITE UPGRADE CATALOG
-// ============================================================================
-const UPGRADE_CATALOG = [
-{
-id: 'multishot',
-name: 'Twin-Vector Splitters',
-tag: 'WEAPON ARRAY',
-color: '#00f3ff',
-desc: 'Fires +1 additional plasma projectile per volley with a tight convergence spread.',
-apply: (p) => { p.projectilesPerShot += 1; }
-},
-{
-id: 'firerate',
-name: 'Overclocked Capacitor',
-tag: 'FIRE CONTROL',
-color: '#ffb800',
-desc: 'Increases primary weapon fire rate by +25% and projectile velocity by +15%.',
-apply: (p) => { p.fireRate *= 1.25; p.bulletSpeed *= 1.15; }
-},
-{
-id: 'pierce',
-name: 'Phase-Piercing Cores',
-tag: 'BALLISTICS',
-color: '#ff007f',
-desc: 'Projectiles slice through +1 additional target and deal +20% base damage.',
-apply: (p) => { p.pierce += 1; p.damage *= 1.20; }
-},
-{
-id: 'caliber',
-name: 'Singularity Payload',
-tag: 'HEAVY ORDNANCE',
-color: '#ff2a55',
-desc: 'Increases weapon damage by +32%, critical strike chance by +10%, and impact knockback.',
-apply: (p) => { p.damage *= 1.32; p.critChance += 0.10; }
-},
-{
-id: 'orbitals',
-name: 'Aegis Plasma Blades',
-tag: 'DEFENSE SYSTEM',
-color: '#00ff88',
-desc: 'Deploys +1 rotating energy blade that vaporizes enemy projectiles and slices hostiles.',
-apply: (p) => { p.orbitalCount += 1; p.orbitalSpeed += 0.45; }
-},
-{
-id: 'tesla',
-name: 'Arc Tesla Discharger',
-tag: 'AUTONOMOUS TECH',
-color: '#00f3ff',
-desc: 'Periodically unleashes high-voltage chain lightning jumping across nearby enemies.',
-apply: (p) => { p.teslaLevel += 1; }
-},
-{
-id: 'missiles',
-name: 'Swarm Micro-Missiles',
-tag: 'ORDNANCE POD',
-color: '#b537f2',
-desc: 'Launches homing micro-missiles every few volleys that detonate in a kinetic blast.',
-apply: (p) => { p.missileLevel += 1; }
-},
-{
-id: 'thrusters',
-name: 'Hyper-Phase Thrusters',
-tag: 'MOBILITY',
-color: '#00ff88',
-desc: 'Increases top speed by +18%, reduces Phase Dash cooldown by 20%, and empowers dash shockwaves.',
-apply: (p) => { p.moveSpeed *= 1.18; p.dashCooldownMax *= 0.80; }
-},
-{
-id: 'magnet',
-name: 'Graviton Harvester',
-tag: 'UTILITY CORE',
-color: '#ffb800',
-desc: 'Expands XP magnetic pull radius by +65%, boosts XP gain by +20%, and repairs 25 Hull HP now.',
-apply: (p) => {
-p.magnetRadius *= 1.65;
-p.xpMultiplier *= 1.20;
-p.hp = Math.min(p.maxHp, p.hp + 25);
+// 6. Modal Screens (Start / Pause / GameOver)
+if (gameState.mode !== 'PLAYING') {
+ctx.fillStyle = 'rgba(4, 6, 12, 0.82)';
+ctx.fillRect(0, 0, W, H);
+
+ctx.strokeStyle = '#00ffcc';
+ctx.strokeRect(W / 2 - 155, H / 2 - 78, 310, 156);
+ctx.fillStyle = 'rgba(10, 20, 32, 0.95)';
+ctx.fillRect(W / 2 - 154, H / 2 - 77, 308, 154);
+
+ctx.textAlign = 'center';
+ctx.font = 'bold 20px Courier New';
+ctx.fillStyle = '#00ffcc';
+
+if (gameState.mode === 'MENU') {
+ctx.fillText('NECRO-VOID // 3D', W / 2, H / 2 - 42);
+ctx.font = '11px Courier New';
+ctx.fillStyle = '#ccddee';
+ctx.fillText('WASD: Move & Strafe | Mouse: Aim', W / 2, H / 2 - 14);
+ctx.fillText('Click / Space: Fire | 1-3: Switch Weapon', W / 2, H / 2 + 4);
+ctx.fillText('Eliminate hostiles & enter the Cyan Portal', W / 2, H / 2 + 22);
+ctx.fillStyle = '#ffcc00';
+ctx.font = 'bold 12px Courier New';
+ctx.fillText('[ CLICK ANYWHERE TO INITIALIZE ]', W / 2, H / 2 + 54);
+} else if (gameState.mode === 'PAUSED') {
+ctx.fillText('SYSTEM PAUSED', W / 2, H / 2 - 25);
+ctx.font = '11px Courier New';
+ctx.fillStyle = '#ccddee';
+ctx.fillText('WASD: Move | Mouse: Aim | 1-3: Weapons', W / 2, H / 2 + 5);
+ctx.fillStyle = '#ffcc00';
+ctx.fillText('[ CLICK TO RESUME MISSION ]', W / 2, H / 2 + 40);
+} else if (gameState.mode === 'GAMEOVER') {
+ctx.fillStyle = '#ff3344';
+ctx.fillText('SIGNAL TERMINATED', W / 2, H / 2 - 30);
+ctx.font = '12px Courier New';
+ctx.fillStyle = '#ffffff';
+ctx.fillText(`FINAL SCORE: ${gameState.score} (SECTOR ${gameState.level})`, W / 2, H / 2 + 5);
+ctx.fillStyle = '#ffcc00';
+ctx.fillText('[ CLICK TO REBOOT SYSTEM ]', W / 2, H / 2 + 42);
 }
-},
-{
-id: 'cryonova',
-name: 'Cryo-Pulse Nova',
-tag: 'TACTICAL PULSE',
-color: '#00f3ff',
-desc: 'Periodically emits a sub-zero shockwave that damages and slows all nearby hostiles by 50%.',
-apply: (p) => { p.novaLevel += 1; }
+ctx.textAlign = 'left';
 }
-];
-
-// ============================================================================
-// 5. GAME STATE & PLAYER CONFIGURATION
-// ============================================================================
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d', { alpha: false });
-
-let screenW = window.innerWidth;
-let screenH = window.innerHeight;
-let dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-function resizeCanvas() {
-screenW = window.innerWidth;
-screenH = window.innerHeight;
-dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = screenW * dpr;
-canvas.height = screenH * dpr;
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-const STATE = {
-START: 0,
-PLAYING: 1,
-LEVEL_UP: 2,
-GAME_OVER: 3
-};
-
-let gameState = STATE.START;
-let hitStopTimer = 0;
-let runTime = 0;
-let waveNumber = 1;
-let spawnAccordion = 0;
-let bossSpawnedForWave = 0;
-let score = 0;
-let kills = 0;
-let combo = 1.0;
-let comboTimer = 0;
-let autoFire = true;
-let currentUpgradeChoices = [];
-
-const camera = {
-x: HALF_WORLD,
-y: HALF_WORLD,
-shakeX: 0,
-shakeY: 0,
-shakeMag: 0,
-kickX: 0,
-kickY: 0
-};
-
-function addScreenShake(amount) {
-camera.shakeMag = Math.min(28, Math.max(camera.shakeMag, amount));
 }
 
-function triggerHitStop(duration = 0.024) {
-hitStopTimer = Math.max(hitStopTimer, duration);
+drawWeaponViewmodel(ctx, W, H, player) {
+const bobX = Math.cos(player.bobPhase * 0.5) * 6 * player.moveSpeedRatio;
+const bobY = Math.abs(Math.sin(player.bobPhase)) * 5 * player.moveSpeedRatio;
+const recoilY = player.kickback * 18;
+const wx = (W >> 1) + bobX;
+const wy = H - 34 + bobY + recoilY;
+
+ctx.save();
+// Muzzle Flash
+if (player.muzzleFlash > 0.15) {
+const grad = ctx.createRadialGradient(wx, wy - 44, 2, wx, wy - 44, 28);
+grad.addColorStop(0, '#ffffff');
+grad.addColorStop(0.4, player.weapon === 2 ? '#00ffff' : '#ffaa22');
+grad.addColorStop(1, 'rgba(255,100,0,0)');
+ctx.fillStyle = grad;
+ctx.beginPath();
+ctx.arc(wx, wy - 44, 28, 0, Math.PI * 2);
+ctx.fill();
 }
 
-const player = {
-x: HALF_WORLD,
-y: HALF_WORLD,
-vx: 0,
-vy: 0,
-radius: 15,
-angle: 0,
-hp: 100,
-maxHp: 100,
-invulnTimer: 0,
-dashTimer: 0,
-dashCooldown: 0,
-dashCooldownMax: 1.8,
-dashDirX: 0,
-dashDirY: 0,
-moveSpeed: 330,
-fireRate: 6.2,
-fireCooldown: 0,
-shotCounter: 0,
-bulletSpeed: 780,
-damage: 22,
-critChance: 0.12,
-pierce: 0,
-projectilesPerShot: 1,
-orbitalCount: 0,
-orbitalAngle: 0,
-orbitalSpeed: 2.8,
-teslaLevel: 0,
-teslaTimer: 0,
-missileLevel: 0,
-novaLevel: 0,
-novaTimer: 0,
-magnetRadius: 155,
-xpMultiplier: 1.0,
-xp: 0,
-xpToNext: 100,
+// Gun Chassis
+ctx.fillStyle = '#1e2730';
+ctx.beginPath();
+ctx.moveTo(wx - 22, wy);
+ctx.lineTo(wx - 10, wy - 42);
+ctx.lineTo(wx + 10, wy - 42);
+ctx.lineTo(wx + 22, wy);
+ctx.closePath();
+ctx.fill();
+
+// Barrel shroud
+ctx.fillStyle = '#364554';
+ctx.fillRect(wx - 7, wy - 48, 14, 34);
+
+// Glowing Energy Rails
+ctx.fillStyle = player.weapon === 0 ? '#00ffcc' : (player.weapon === 1 ? '#ffaa00' : '#00ccff');
+ctx.fillRect(wx - 3, wy - 45, 6, 26);
+
+ctx.restore();
+}
+}
+
+/**
+* ============================================================================
+* 8. MAIN GAME ENGINE & FIXED-TIMESTEP LOOP
+* ============================================================================
+*/
+class Game {
+constructor() {
+this.canvas = document.getElementById('screen');
+this.assets = new AssetManager();
+this.sound = new SoundEngine();
+this.renderer = new SoftwareRenderer(this.canvas, this.assets);
+this.ecs = new ECS();
+this.spatialGrid = new SpatialHashGrid(2.0);
+this.particles = new ParticlePool(450);
+this.map = new LevelMap(38, 38);
+
+this.keys = {};
+this.mouseDown = false;
+
+this.state = {
+mode: 'MENU', // MENU, PLAYING, PAUSED, GAMEOVER
 level: 1,
-upgradeCounts: {}
+score: 0,
+enemiesRemaining: 0
 };
 
-function resetGame() {
-player.x = HALF_WORLD;
-player.y = HALF_WORLD;
-player.vx = 0;
-player.vy = 0;
-player.hp = 100;
-player.maxHp = 100;
-player.invulnTimer = 0.5;
-player.dashTimer = 0;
-player.dashCooldown = 0;
-player.dashCooldownMax = 1.8;
-player.moveSpeed = 330;
-player.fireRate = 6.2;
-player.fireCooldown = 0;
-player.shotCounter = 0;
-player.bulletSpeed = 780;
-player.damage = 22;
-player.critChance = 0.12;
-player.pierce = 0;
-player.projectilesPerShot = 1;
-player.orbitalCount = 0;
-player.orbitalAngle = 0;
-player.orbitalSpeed = 2.8;
-player.teslaLevel = 0;
-player.teslaTimer = 0;
-player.missileLevel = 0;
-player.novaLevel = 0;
-player.novaTimer = 0;
-player.magnetRadius = 155;
-player.xpMultiplier = 1.0;
-player.xp = 0;
-player.xpToNext = 90;
-player.level = 1;
-player.upgradeCounts = {};
+this.player = {
+x: 3.5, y: 3.5,
+vx: 0, vy: 0,
+angle: 0, pitch: 0,
+radius: 0.3,
+hp: 100, maxHp: 100,
+ammo: 40,
+weapon: 0,
+unlockedWeapons: [true, true, false],
+fireCooldown: 0,
+kickback: 0,
+muzzleFlash: 0,
+damageFlash: 0,
+bonusFlash: 0,
+bobPhase: 0,
+moveSpeedRatio: 0
+};
 
-camera.x = player.x;
-camera.y = player.y;
-camera.shakeMag = 0;
+this.time = 0;
+this.lastFrameTime = performance.now();
+this.accumulator = 0;
+this.fixedDt = 1 / 60;
 
-runTime = 0;
-waveNumber = 1;
-spawnAccordion = 0;
-bossSpawnedForWave = 0;
-score = 0;
-kills = 0;
-combo = 1.0;
-comboTimer = 0;
-hitStopTimer = 0;
+this.setupInputs();
+this.handleResize();
+window.addEventListener('resize', () => this.handleResize());
 
-// Clear all pools
-for (let i = 0; i < MAX_PARTICLES; i++) particles[i].active = false;
-for (let i = 0; i < MAX_SHOCKWAVES; i++) shockwaves[i].active = false;
-for (let i = 0; i < MAX_TEXTS; i++) floatingTexts[i].active = false;
-for (let i = 0; i < MAX_PROJECTILES; i++) projectiles[i].active = false;
-for (let i = 0; i < MAX_ENEMIES; i++) enemies[i].active = false;
-for (let i = 0; i < MAX_ORBS; i++) xpOrbs[i].active = false;
-for (let i = 0; i < MAX_GHOSTS; i++) ghosts[i].active = false;
-for (let i = 0; i < MAX_LIGHTNING; i++) lightningArcs[i].active = false;
-for (let i = 0; i < MAX_WELLS; i++) gridWells[i].active = false;
-
-updateUpgradeStripUI();
-updateHUD();
-
-// Initial wave burst
-for (let i = 0; i < 6; i++) spawnEnemy(0);
-spawnShockwave(player.x, player.y, 260, '#00f3ff', 600, 4);
-spawnWell(player.x, player.y, 280, 45, 0.5);
+this.loadLevel(1, true);
+requestAnimationFrame((t) => this.loop(t));
 }
 
-// ============================================================================
-// 6. INPUT HANDLING
-// ============================================================================
-const keys = {};
-const mouse = {
-x: screenW / 2,
-y: screenH / 2,
-worldX: HALF_WORLD,
-worldY: HALF_WORLD,
-down: false
-};
+handleResize() {
+const aspect = 16 / 9;
+let w = window.innerWidth * 0.96;
+let h = window.innerHeight * 0.96;
+if (w / h > aspect) w = h * aspect;
+else h = w / aspect;
+this.canvas.style.width = `${Math.floor(w)}px`;
+this.canvas.style.height = `${Math.floor(h)}px`;
+}
 
+setupInputs() {
 window.addEventListener('keydown', (e) => {
-keys[e.code] = true;
-
-if (e.code === 'Space') {
-if (gameState === STATE.START) {
-e.preventDefault();
-startGame();
-} else if (gameState === STATE.GAME_OVER) {
-e.preventDefault();
-startGame();
-} else if (gameState === STATE.PLAYING) {
-e.preventDefault();
-attemptDash();
-}
-} else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-if (gameState === STATE.PLAYING) attemptDash();
-} else if (e.code === 'KeyF') {
-toggleAutoFire();
-} else if (e.code === 'KeyM') {
-toggleMute();
-} else if (gameState === STATE.LEVEL_UP) {
-if (e.code === 'Digit1' || e.code === 'Numpad1') selectUpgrade(0);
-if (e.code === 'Digit2' || e.code === 'Numpad2') selectUpgrade(1);
-if (e.code === 'Digit3' || e.code === 'Numpad3') selectUpgrade(2);
-}
+this.keys[e.code] = true;
+if (e.code === 'Digit1') this.player.weapon = 0;
+if (e.code === 'Digit2' && this.player.unlockedWeapons[1]) this.player.weapon = 1;
+if (e.code === 'Digit3' && this.player.unlockedWeapons[2]) this.player.weapon = 2;
 });
 
 window.addEventListener('keyup', (e) => {
-keys[e.code] = false;
+this.keys[e.code] = false;
 });
 
-window.addEventListener('mousemove', (e) => {
-mouse.x = e.clientX;
-mouse.y = e.clientY;
-});
+this.canvas.addEventListener('mousedown', (e) => {
+if (e.button === 0) this.mouseDown = true;
+this.sound.init();
 
-window.addEventListener('mousedown', (e) => {
-sfx.init();
-if (e.button === 0) mouse.down = true;
-if (e.button === 2 && gameState === STATE.PLAYING) attemptDash();
+if (this.state.mode === 'MENU' || this.state.mode === 'PAUSED') {
+this.state.mode = 'PLAYING';
+if (this.canvas.requestPointerLock) this.canvas.requestPointerLock();
+} else if (this.state.mode === 'GAMEOVER') {
+this.loadLevel(1, true);
+this.state.mode = 'PLAYING';
+if (this.canvas.requestPointerLock) this.canvas.requestPointerLock();
+} else if (this.state.mode === 'PLAYING' && document.pointerLockElement !== this.canvas) {
+if (this.canvas.requestPointerLock) this.canvas.requestPointerLock();
+}
 });
 
 window.addEventListener('mouseup', (e) => {
-if (e.button === 0) mouse.down = false;
+if (e.button === 0) this.mouseDown = false;
 });
 
-window.addEventListener('contextmenu', (e) => e.preventDefault());
-
-// UI Buttons
-document.getElementById('start-btn').addEventListener('click', () => startGame());
-document.getElementById('restart-btn').addEventListener('click', () => startGame());
-document.getElementById('btn-autofire').addEventListener('click', () => toggleAutoFire());
-document.getElementById('btn-mute').addEventListener('click', () => toggleMute());
-
-function toggleAutoFire() {
-autoFire = !autoFire;
-const btn = document.getElementById('btn-autofire');
-btn.textContent = `[F] AUTO-FIRE: ${autoFire ? 'ON' : 'OFF'}`;
-btn.classList.toggle('active', autoFire);
+document.addEventListener('pointerlockchange', () => {
+if (document.pointerLockElement !== this.canvas && this.state.mode === 'PLAYING') {
+this.state.mode = 'PAUSED';
+this.mouseDown = false;
 }
-
-function toggleMute() {
-sfx.init();
-const muted = sfx.toggleMute();
-const btn = document.getElementById('btn-mute');
-btn.textContent = `[M] AUDIO: ${muted ? 'OFF' : 'ON'}`;
-btn.classList.toggle('active', !muted);
-}
-
-function startGame() {
-sfx.init();
-document.getElementById('start-modal').classList.remove('active');
-document.getElementById('gameover-modal').classList.remove('active');
-document.getElementById('levelup-modal').classList.remove('active');
-resetGame();
-gameState = STATE.PLAYING;
-}
-
-// ============================================================================
-// 7. COMBAT, WEAPONS & ENEMY SPAWNER LOGIC
-// ============================================================================
-function attemptDash() {
-if (player.dashCooldown > 0 || player.dashTimer > 0) return;
-
-let dx = 0, dy = 0;
-if (keys['KeyW'] || keys['ArrowUp']) dy -= 1;
-if (keys['KeyS'] || keys['ArrowDown']) dy += 1;
-if (keys['KeyA'] || keys['ArrowLeft']) dx -= 1;
-if (keys['KeyD'] || keys['ArrowRight']) dx += 1;
-
-if (dx === 0 && dy === 0) {
-dx = Math.cos(player.angle);
-dy = Math.sin(player.angle);
-} else {
-const len = Math.hypot(dx, dy);
-dx /= len;
-dy /= len;
-}
-
-player.dashDirX = dx;
-player.dashDirY = dy;
-player.dashTimer = 0.18;
-player.dashCooldown = player.dashCooldownMax;
-player.invulnTimer = 0.26;
-
-sfx.dash();
-addScreenShake(6);
-spawnShockwave(player.x, player.y, 130, '#00f3ff', 520, 3);
-spawnWell(player.x, player.y, 200, 35, 0.3);
-spawnBurst(player.x, player.y, 18, '#00f3ff', 80, 260, 3);
-
-// Knockback nearby enemies on dash start
-const near = spatialGrid.query(player.x, player.y, 135);
-for (let i = 0; i < near.length; i++) {
-const e = near[i];
-const ex = e.x - player.x;
-const ey = e.y - player.y;
-const d = Math.hypot(ex, ey) || 1;
-if (d < 135) {
-e.vx += (ex / d) * 420;
-e.vy += (ey / d) * 420;
-if (player.novaLevel > 0) {
-e.slowTimer = 2.5;
-damageEnemy(e, player.damage * 0.75, false);
-}
-}
-}
-}
-
-function firePlayerWeapon() {
-player.shotCounter++;
-const count = player.projectilesPerShot;
-const spreadArc = Math.min(0.55, (count - 1) * 0.085);
-const startAngle = player.angle - spreadArc / 2;
-
-for (let i = 0; i < count; i++) {
-const ang = count === 1 ? player.angle : startAngle + (spreadArc * i) / (count - 1);
-const jitter = (Math.random() - 0.5) * 0.03;
-const finalAng = ang + jitter;
-spawnProjectile(
-player.x + Math.cos(finalAng) * 18,
-player.y + Math.sin(finalAng) * 18,
-Math.cos(finalAng) * player.bulletSpeed,
-Math.sin(finalAng) * player.bulletSpeed,
-player.damage,
-player.pierce,
-false,
-false
-);
-}
-
-// Muzzle kickback & particles
-camera.kickX -= Math.cos(player.angle) * 3.2;
-camera.kickY -= Math.sin(player.angle) * 3.2;
-sfx.shoot();
-
-const mx = player.x + Math.cos(player.angle) * 20;
-const my = player.y + Math.sin(player.angle) * 20;
-for (let i = 0; i < 3; i++) {
-const a = player.angle + (Math.random() - 0.5) * 0.7;
-const spd = 120 + Math.random() * 140;
-spawnParticle(mx, my, Math.cos(a) * spd, Math.sin(a) * spd, '#00f3ff', 2.2, 4.5, true);
-}
-
-// Swarm Micro-Missiles proc every 3rd volley
-if (player.missileLevel > 0 && player.shotCounter % 3 === 0) {
-const missileCount = player.missileLevel;
-for (let m = 0; m < missileCount; m++) {
-const side = (m % 2 === 0 ? 1 : -1) * (0.6 + m * 0.2);
-const mAng = player.angle + side;
-spawnProjectile(
-player.x,
-player.y,
-Math.cos(mAng) * 440,
-Math.sin(mAng) * 440,
-player.damage * 1.45,
-0,
-false,
-true
-);
-}
-}
-}
-
-function spawnProjectile(x, y, vx, vy, dmg, pierce, isEnemy, isMissile) {
-for (let i = 0; i < MAX_PROJECTILES; i++) {
-const b = projectiles[i];
-if (!b.active) {
-b.active = true;
-b.isEnemy = isEnemy;
-b.isMissile = isMissile;
-b.x = x; b.y = y;
-b.px = x; b.py = y;
-b.vx = vx; b.vy = vy;
-b.dmg = dmg;
-b.pierce = pierce;
-b.hitCount = 0;
-b.life = 0;
-b.maxLife = isEnemy ? 3.2 : isMissile ? 2.6 : 1.35;
-b.radius = isEnemy ? 6 : isMissile ? 6 : Math.min(9, 4.5 + pierce * 0.7);
-b.color = isEnemy ? '#ff2a55' : isMissile ? '#b537f2' : pierce > 0 ? '#ff007f' : '#00f3ff';
-b.turnRate = isMissile ? 6.5 : 0;
-b.aoeRadius = isMissile ? 75 : 0;
-return;
-}
-}
-}
-
-// Enemy Types:
-// 0 = Swarmer (Fast crimson dart)
-// 1 = Charger Tank (Amber heavy octagon that telegraphs & charges)
-// 2 = Shooter Prism (Violet diamond that orbits and shoots plasma)
-// 3 = Splitter Hex (Emerald hexagon that splits into 3 mini-swarmers on death)
-// 4 = Apex Warden Boss (Massive dreadnought)
-// 5 = Mini-Swarmer (Fast fragment from Splitter)
-function spawnEnemy(type, customX, customY) {
-for (let i = 0; i < MAX_ENEMIES; i++) {
-const e = enemies[i];
-if (!e.active) {
-e.active = true;
-e.id = nextEnemyId++;
-e.type = type;
-e.flashTimer = 0;
-e.slowTimer = 0;
-e.stateTimer = Math.random() * 1.5;
-e.phase = 0;
-e.isCharging = false;
-e.isBoss = (type === 4);
-
-if (customX !== undefined && customY !== undefined) {
-e.x = customX;
-e.y = customY;
-} else {
-const ang = Math.random() * Math.PI * 2;
-const dist = Math.max(screenW, screenH) * 0.62 + 80 + Math.random() * 120;
-e.x = Math.max(60, Math.min(WORLD_SIZE - 60, player.x + Math.cos(ang) * dist));
-e.y = Math.max(60, Math.min(WORLD_SIZE - 60, player.y + Math.sin(ang) * dist));
-}
-
-e.vx = 0;
-e.vy = 0;
-const scaleMult = 1 + runTime * 0.015;
-
-if (type === 0) {
-// Swarmer
-e.radius = 13;
-e.hp = 24 * scaleMult;
-e.maxHp = e.hp;
-e.speed = 165 + Math.min(90, runTime * 0.45);
-e.color = '#ff2a55';
-e.xpValue = 12;
-e.scoreValue = 50;
-} else if (type === 1) {
-// Charger Tank
-e.radius = 22;
-e.hp = 95 * scaleMult;
-e.maxHp = e.hp;
-e.speed = 95;
-e.color = '#ffb800';
-e.xpValue = 32;
-e.scoreValue = 150;
-} else if (type === 2) {
-// Shooter Prism
-e.radius = 16;
-e.hp = 48 * scaleMult;
-e.maxHp = e.hp;
-e.speed = 125;
-e.color = '#b537f2';
-e.xpValue = 24;
-e.scoreValue = 110;
-} else if (type === 3) {
-// Splitter Hex
-e.radius = 19;
-e.hp = 68 * scaleMult;
-e.maxHp = e.hp;
-e.speed = 115;
-e.color = '#00ff88';
-e.xpValue = 28;
-e.scoreValue = 130;
-} else if (type === 4) {
-// Apex Warden Boss
-e.radius = 40;
-e.hp = 680 * scaleMult;
-e.maxHp = e.hp;
-e.speed = 88;
-e.color = '#ff007f';
-e.xpValue = 220;
-e.scoreValue = 1500;
-spawnShockwave(e.x, e.y, 260, '#ff007f', 450, 5);
-spawnFloatingText(player.x, player.y - 50, 'WARNING // APEX WARDEN DETECTED', '#ff007f', 18);
-} else if (type === 5) {
-// Mini-Swarmer
-e.radius = 9;
-e.hp = 14 * scaleMult;
-e.maxHp = e.hp;
-e.speed = 225;
-e.color = '#00ff88';
-e.xpValue = 7;
-e.scoreValue = 30;
-}
-return e;
-}
-}
-return null;
-}
-
-function spawnXPOrb(x, y, val) {
-for (let i = 0; i < MAX_ORBS; i++) {
-const o = xpOrbs[i];
-if (!o.active) {
-o.active = true;
-o.x = x;
-o.y = y;
-const ang = Math.random() * Math.PI * 2;
-const spd = 40 + Math.random() * 80;
-o.vx = Math.cos(ang) * spd;
-o.vy = Math.sin(ang) * spd;
-o.val = val;
-o.magnetized = false;
-o.pulse = Math.random() * 6;
-if (val >= 50) {
-o.color = '#ffb800';
-o.radius = 8;
-} else if (val >= 22) {
-o.color = '#ff007f';
-o.radius = 6.5;
-} else {
-o.color = '#00ff88';
-o.radius = 5;
-}
-return;
-}
-}
-}
-
-function damageEnemy(e, rawDmg, allowCrit = true) {
-if (!e.active) return;
-let isCrit = allowCrit && Math.random() < player.critChance;
-const dmg = Math.round(rawDmg * (isCrit ? 1.85 : 1.0));
-e.hp -= dmg;
-e.flashTimer = 0.08;
-
-spawnFloatingText(
-e.x,
-e.y - e.radius,
-isCrit ? `${dmg}!` : `${dmg}`,
-isCrit ? '#ffb800' : '#ffffff',
-isCrit ? 17 : 13
-);
-
-if (e.hp <= 0) {
-killEnemy(e, isCrit);
-} else {
-sfx.hit();
-if (isCrit) triggerHitStop(0.016);
-}
-}
-
-function killEnemy(e, wasCrit) {
-e.active = false;
-kills++;
-combo = Math.min(10.0, combo + 0.15);
-comboTimer = 3.5;
-
-const gainedScore = Math.round(e.scoreValue * combo);
-score += gainedScore;
-
-const particleCount = e.isBoss ? 65 : 18;
-spawnBurst(e.x, e.y, particleCount, e.color, 60, e.isBoss ? 480 : 300, e.isBoss ? 4.5 : 3);
-spawnShockwave(e.x, e.y, e.isBoss ? 240 : e.radius * 3.6, e.color, 460, e.isBoss ? 5 : 2.5);
-spawnWell(e.x, e.y, e.isBoss ? 300 : 130, e.isBoss ? 55 : 22, 0.35);
-
-sfx.explode(e.isBoss ? 2.0 : 1.0);
-addScreenShake(e.isBoss ? 18 : wasCrit ? 6 : 3.5);
-triggerHitStop(e.isBoss ? 0.055 : 0.018);
-
-// Splitter Hex spawns 3 Mini-Swarmers
-if (e.type === 3) {
-for (let k = 0; k < 3; k++) {
-const ang = (Math.PI * 2 * k) / 3;
-const child = spawnEnemy(5, e.x + Math.cos(ang) * 16, e.y + Math.sin(ang) * 16);
-if (child) {
-child.vx = Math.cos(ang) * 180;
-child.vy = Math.sin(ang) * 180;
-}
-}
-}
-
-// Drop XP Orbs
-if (e.isBoss) {
-for (let k = 0; k < 12; k++) {
-spawnXPOrb(e.x + (Math.random() - 0.5) * 30, e.y + (Math.random() - 0.5) * 30, 25);
-}
-} else {
-spawnXPOrb(e.x, e.y, e.xpValue);
-}
-}
-
-function damagePlayer(amount) {
-if (player.invulnTimer > 0) return;
-player.hp -= amount;
-player.invulnTimer = 0.65;
-combo = 1.0;
-
-sfx.playerDamage();
-addScreenShake(16);
-triggerHitStop(0.045);
-spawnShockwave(player.x, player.y, 180, '#ff2a55', 550, 4.5);
-spawnBurst(player.x, player.y, 28, '#ff2a55', 90, 350, 3.5);
-spawnFloatingText(player.x, player.y - 24, `-${amount} HULL`, '#ff2a55', 18);
-
-if (player.hp <= 0) {
-player.hp = 0;
-triggerGameOver();
-}
-}
-
-// ============================================================================
-// 8. LEVEL UP & UPGRADE UI FLOW
-// ============================================================================
-function addXP(amount) {
-player.xp += amount * player.xpMultiplier;
-sfx.xp(combo);
-
-if (player.xp >= player.xpToNext) {
-player.xp -= player.xpToNext;
-player.level++;
-player.xpToNext = Math.round(player.xpToNext * 1.28 + 35);
-openLevelUpModal();
-}
-}
-
-function openLevelUpModal() {
-gameState = STATE.LEVEL_UP;
-mouse.down = false;
-sfx.levelUp();
-spawnShockwave(player.x, player.y, 280, '#00ff88', 550, 4);
-
-// Pick 3 random unique upgrades
-const pool = [...UPGRADE_CATALOG];
-currentUpgradeChoices = [];
-for (let i = 0; i < 3; i++) {
-const idx = (Math.random() * pool.length) | 0;
-currentUpgradeChoices.push(pool.splice(idx, 1)[0]);
-}
-
-const container = document.getElementById('upgrade-cards');
-container.innerHTML = '';
-currentUpgradeChoices.forEach((upg, idx) => {
-const curLvl = player.upgradeCounts[upg.id] || 0;
-const card = document.createElement('div');
-card.className = 'upgrade-card';
-card.innerHTML = `
-<div>
-<span class="card-hotkey">[${idx + 1}]</span>
-<div class="card-tag" style="color:${upg.color}">${upg.tag}</div>
-<div class="card-title">${upg.name}</div>
-<div class="card-desc">${upg.desc}</div>
-</div>
-<div class="card-lvl">RANK ${curLvl} &rarr; RANK ${curLvl + 1}</div>
-`;
-card.addEventListener('click', () => selectUpgrade(idx));
-container.appendChild(card);
 });
 
-document.getElementById('levelup-modal').classList.add('active');
-}
-
-function selectUpgrade(index) {
-if (gameState !== STATE.LEVEL_UP) return;
-const chosen = currentUpgradeChoices[index];
-if (!chosen) return;
-
-chosen.apply(player);
-player.upgradeCounts[chosen.id] = (player.upgradeCounts[chosen.id] || 0) + 1;
-player.invulnTimer = 0.5;
-
-document.getElementById('levelup-modal').classList.remove('active');
-updateUpgradeStripUI();
-gameState = STATE.PLAYING;
-}
-
-function updateUpgradeStripUI() {
-const strip = document.getElementById('upgrade-strip');
-strip.innerHTML = '';
-Object.keys(player.upgradeCounts).forEach((id) => {
-const upg = UPGRADE_CATALOG.find(u => u.id === id);
-if (upg) {
-const pill = document.createElement('span');
-pill.className = 'upgrade-pill';
-pill.style.borderColor = upg.color;
-pill.style.color = upg.color;
-pill.textContent = `${upg.name.split(' ')[0]} Lv.${player.upgradeCounts[id]}`;
-strip.appendChild(pill);
-}
+window.addEventListener('mousemove', (e) => {
+if (this.state.mode !== 'PLAYING' || document.pointerLockElement !== this.canvas) return;
+this.player.angle += e.movementX * 0.0026;
+this.player.pitch = Math.max(-70, Math.min(70, this.player.pitch - e.movementY * 0.22));
 });
 }
 
-function triggerGameOver() {
-gameState = STATE.GAME_OVER;
-document.getElementById('go-time').textContent = formatTime(runTime);
-document.getElementById('go-score').textContent = score.toLocaleString();
-document.getElementById('go-kills').textContent = kills.toLocaleString();
-document.getElementById('go-level').textContent = player.level;
-document.getElementById('gameover-subtitle').textContent =
-`WAVE ${waveNumber} // HULL BREACH DETECTED`;
-document.getElementById('gameover-modal').classList.add('active');
+loadLevel(levelNum, resetPlayer = false) {
+this.state.level = levelNum;
+this.ecs.clear();
+this.particles = new ParticlePool(450);
+
+if (resetPlayer) {
+this.state.score = 0;
+this.player.hp = 100;
+this.player.ammo = 45;
+this.player.weapon = 0;
+this.player.unlockedWeapons = [true, true, false];
 }
 
-// ============================================================================
-// 9. FIXED TIMESTEP SIMULATION UPDATE
-// ============================================================================
-function updateSimulation(dt) {
-sfx.updateMusic(dt, gameState === STATE.PLAYING);
+const start = this.map.generate(levelNum, this.ecs, this.assets);
+this.player.x = start.startX;
+this.player.y = start.startY;
+this.player.vx = 0;
+this.player.vy = 0;
+this.player.angle = 0;
+this.player.pitch = 0;
+}
 
-// Update screen shake even during micro hit-stop for visceral feedback
-if (camera.shakeMag > 0.1) {
+firePlayerWeapon() {
+const p = this.player;
+if (p.weapon > 0 && p.ammo <= 0) {
+p.weapon = 0; // Auto-fallback to Blaster
+}
+
+if (p.weapon === 0) {
+p.fireCooldown = 0.22;
+this.spawnProjectile(p.x, p.y, p.angle, 13.0, 22, true, 0xFFFFF040);
+} else if (p.weapon === 1) {
+p.ammo = Math.max(0, p.ammo - 2);
+p.fireCooldown = 0.58;
+for (let i = -2; i <= 2; i++) {
+const spread = (i * 0.055) + (Math.random() - 0.5) * 0.03;
+this.spawnProjectile(p.x, p.y, p.angle + spread, 15.0, 18, true, 0xFF30C0FF);
+}
+} else if (p.weapon === 2) {
+p.ammo = Math.max(0, p.ammo - 1);
+p.fireCooldown = 0.11;
+const spread = (Math.random() - 0.5) * 0.04;
+this.spawnProjectile(p.x, p.y, p.angle + spread, 16.5, 20, true, 0xFFFFCC00);
+}
+
+p.kickback = 1.0;
+p.muzzleFlash = 1.0;
+this.sound.sfxShoot(p.weapon);
+}
+
+spawnProjectile(x, y, angle, speed, damage, isPlayer, particleColor) {
+const id = this.ecs.createEntity();
+const dx = Math.cos(angle);
+const dy = Math.sin(angle);
+this.ecs.transform.set(id, {
+x: x + dx * 0.35,
+y: y + dy * 0.35,
+z: 0,
+dirX: dx, dirY: dy,
+radius: 0.15
+});
+this.ecs.velocity.set(id, { vx: dx * speed, vy: dy * speed, speed });
+this.ecs.sprite.set(id, {
+texData: isPlayer ? this.assets.sprites.projPlayer : this.assets.sprites.projEnemy,
+scale: 0.32,
+zOffset: -0.05
+});
+this.ecs.projectile.set(id, {
+owner: isPlayer ? 'player' : 'enemy',
+damage,
+life: 2.2,
+color: particleColor
+});
+this.ecs.light.set(id, {
+r: isPlayer ? 0.2 : 1.0,
+g: isPlayer ? 0.85 : 0.35,
+b: isPlayer ? 1.0 : 0.1,
+radius: 3.2,
+flicker: false
+});
+}
+
+moveWithWallSlide(entityTransform, dx, dy) {
+const r = entityTransform.radius;
+const nx = entityTransform.x + dx;
+const ny = entityTransform.y + dy;
+
+const canMoveX = !this.map.isSolid((nx + r) | 0, (entityTransform.y + r) | 0) &&
+!this.map.isSolid((nx - r) | 0, (entityTransform.y + r) | 0) &&
+!this.map.isSolid((nx + r) | 0, (entityTransform.y - r) | 0) &&
+!this.map.isSolid((nx - r) | 0, (entityTransform.y - r) | 0);
+if (canMoveX) entityTransform.x = nx;
+
+const canMoveY = !this.map.isSolid((entityTransform.x + r) | 0, (ny + r) | 0) &&
+!this.map.isSolid((entityTransform.x - r) | 0, (ny + r) | 0) &&
+!this.map.isSolid((entityTransform.x + r) | 0, (ny - r) | 0) &&
+!this.map.isSolid((entityTransform.x - r) | 0, (ny - r) | 0);
+if (canMoveY) entityTransform.y = ny;
+
+return canMoveX && canMoveY;
+}
+
+fixedUpdate(dt) {
+this.sound.updateMusic();
+if (this.state.mode !== 'PLAYING') return;
+
+this.time += dt;
+const p = this.player;
+
+// 1. Player Keyboard Turning & Smooth Movement
+if (this.keys['ArrowLeft']) p.angle -= 2.4 * dt;
+if (this.keys['ArrowRight']) p.angle += 2.4 * dt;
+
+const forwardX = Math.cos(p.angle);
+const forwardY = Math.sin(p.angle);
+const rightX = -forwardY;
+const rightY = forwardX;
+
+let moveX = 0, moveY = 0;
+if (this.keys['KeyW'] || this.keys['ArrowUp']) { moveX += forwardX; moveY += forwardY; }
+if (this.keys['KeyS'] || this.keys['ArrowDown']) { moveX -= forwardX; moveY -= forwardY; }
+if (this.keys['KeyD']) { moveX += rightX; moveY += rightY; }
+if (this.keys['KeyA']) { moveX -= rightX; moveY -= rightY; }
+
+const mag = Math.hypot(moveX, moveY);
+if (mag > 0) {
+moveX /= mag;
+moveY /= mag;
+}
+
+const maxSpeed = 4.6;
+p.vx += (moveX * maxSpeed - p.vx) * Math.min(1, dt * 12);
+p.vy += (moveY * maxSpeed - p.vy) * Math.min(1, dt * 12);
+this.moveWithWallSlide(p, p.vx * dt, p.vy * dt);
+
+const curSpeed = Math.hypot(p.vx, p.vy);
+p.moveSpeedRatio = curSpeed / maxSpeed;
+p.bobPhase += curSpeed * dt * 2.8;
+
+// Cooldowns & Decays
+p.fireCooldown = Math.max(0, p.fireCooldown - dt);
+p.kickback = Math.max(0, p.kickback - dt * 5.0);
+p.muzzleFlash = Math.max(0, p.muzzleFlash - dt * 8.0);
+p.damageFlash = Math.max(0, p.damageFlash - dt * 2.2);
+p.bonusFlash = Math.max(0, p.bonusFlash - dt * 2.5);
+
+if ((this.mouseDown || this.keys['Space']) && p.fireCooldown <= 0) {
+this.firePlayerWeapon();
+}
+
+// 2. Rebuild Spatial Partitioning Hash Grid
+this.spatialGrid.clear();
+for (const [id, col] of this.ecs.collider.entries()) {
+const tr = this.ecs.transform.get(id);
+if (tr) this.spatialGrid.insert(id, tr.x, tr.y, tr.radius);
+}
+
+// 3. Update AI Entities (Finite State Machine: PATROL -> SEEK -> ATTACK -> EVADE)
+let activeEnemies = 0;
+for (const [id, ai] of this.ecs.ai.entries()) {
+activeEnemies++;
+const tr = this.ecs.transform.get(id);
+const vel = this.ecs.velocity.get(id);
+const hlth = this.ecs.health.get(id);
+if (!tr || !vel || !hlth) continue;
+
+if (hlth.hitFlash > 0) hlth.hitFlash = Math.max(0, hlth.hitFlash - dt);
+ai.timer -= dt;
+ai.cooldown = Math.max(0, ai.cooldown - dt);
+
+const dx = p.x - tr.x;
+const dy = p.y - tr.y;
+const distToPlayer = Math.hypot(dx, dy);
+const canSee = distToPlayer < 13.0 && this.map.hasLineOfSight(tr.x, tr.y, p.x, p.y);
+
+if (hlth.hp < hlth.maxHp * 0.25 && ai.state !== 'EVADE' && Math.random() < 0.05) {
+ai.state = 'EVADE';
+ai.timer = 1.2;
+} else if (canSee) {
+if (distToPlayer < (ai.type === 'stalker' ? 2.2 : 6.0)) {
+ai.state = 'ATTACK';
+} else {
+ai.state = 'SEEK';
+}
+} else if (ai.state !== 'PATROL' && ai.timer <= 0) {
+ai.state = 'PATROL';
+}
+
+if (ai.state === 'PATROL') {
+if (ai.timer <= 0) {
 const ang = Math.random() * Math.PI * 2;
-camera.shakeX = Math.cos(ang) * camera.shakeMag;
-camera.shakeY = Math.sin(ang) * camera.shakeMag;
-camera.shakeMag *= Math.pow(0.001, dt);
+tr.dirX = Math.cos(ang);
+tr.dirY = Math.sin(ang);
+ai.timer = 1.5 + Math.random() * 2.0;
+}
+const moved = this.moveWithWallSlide(tr, tr.dirX * vel.speed * 0.45 * dt, tr.dirY * vel.speed * 0.45 * dt);
+if (!moved) ai.timer = 0;
+} else if (ai.state === 'SEEK') {
+const nx = dx / (distToPlayer || 1);
+const ny = dy / (distToPlayer || 1);
+this.moveWithWallSlide(tr, nx * vel.speed * dt, ny * vel.speed * dt);
+tr.dirX = nx; tr.dirY = ny;
+} else if (ai.state === 'EVADE') {
+const nx = -dx / (distToPlayer || 1);
+const ny = -dy / (distToPlayer || 1);
+this.moveWithWallSlide(tr, nx * vel.speed * dt, ny * vel.speed * dt);
+if (ai.timer <= 0) ai.state = 'SEEK';
+} else if (ai.state === 'ATTACK') {
+// Strafe around player while attacking
+const strafeX = -dy / (distToPlayer || 1);
+const strafeY = dx / (distToPlayer || 1);
+const dirSign = (id & 1) ? 1 : -1;
+this.moveWithWallSlide(tr, strafeX * dirSign * vel.speed * 0.6 * dt, strafeY * dirSign * vel.speed * 0.6 * dt);
+
+if (ai.cooldown <= 0 && canSee) {
+const aimAngle = Math.atan2(dy, dx);
+if (ai.type === 'stalker' && distToPlayer < 1.3) {
+// Melee strike
+p.hp -= 14;
+p.damageFlash = 0.65;
+this.sound.sfxHit();
+ai.cooldown = 0.85;
 } else {
-camera.shakeX = 0;
-camera.shakeY = 0;
-camera.shakeMag = 0;
+// Ranged plasma bolt
+this.spawnProjectile(tr.x, tr.y, aimAngle, 7.5, ai.type === 'boss' ? 18 : 11, false, 0xFF2060FF);
+if (ai.type === 'boss') {
+this.spawnProjectile(tr.x, tr.y, aimAngle - 0.16, 7.5, 14, false, 0xFF2060FF);
+this.spawnProjectile(tr.x, tr.y, aimAngle + 0.16, 7.5, 14, false, 0xFF2060FF);
 }
-
-if (hitStopTimer > 0) {
-hitStopTimer -= dt;
-return;
-}
-
-runTime += dt;
-const newWave = 1 + Math.floor(runTime / 25);
-if (newWave > waveNumber) {
-waveNumber = newWave;
-spawnFloatingText(player.x, player.y - 45, `WAVE ${waveNumber} // INTENSIFYING`, '#ff007f', 18);
-spawnShockwave(player.x, player.y, 350, '#ff007f', 600, 3);
-}
-
-// Combo decay
-if (comboTimer > 0) {
-comboTimer -= dt;
-if (comboTimer <= 0) combo = 1.0;
-}
-
-// Wave Director & Enemy Spawning
-const spawnRate = 1.35 + runTime * 0.042;
-spawnAccordion += spawnRate * dt;
-while (spawnAccordion >= 1) {
-spawnAccordion -= 1;
-const roll = Math.random();
-if (waveNumber >= 3 && roll < 0.14) {
-spawnEnemy(3); // Splitter Hex
-} else if (waveNumber >= 2 && roll < 0.30) {
-spawnEnemy(2); // Shooter Prism
-} else if (runTime > 15 && roll < 0.46) {
-spawnEnemy(1); // Charger Tank
-} else {
-spawnEnemy(0); // Swarmer
-}
-}
-
-// Spawn Apex Warden Boss every 2 waves (Wave 2, 4, 6...)
-if (waveNumber % 2 === 0 && bossSpawnedForWave !== waveNumber) {
-bossSpawnedForWave = waveNumber;
-spawnEnemy(4);
-}
-
-// Player Timers
-if (player.invulnTimer > 0) player.invulnTimer -= dt;
-if (player.dashCooldown > 0) player.dashCooldown = Math.max(0, player.dashCooldown - dt);
-if (player.fireCooldown > 0) player.fireCooldown -= dt;
-
-// Player Movement
-if (player.dashTimer > 0) {
-player.dashTimer -= dt;
-const dashSpeed = player.moveSpeed * 3.1;
-player.vx = player.dashDirX * dashSpeed;
-player.vy = player.dashDirY * dashSpeed;
-
-// Spawn trail ghost
-for (let i = 0; i < MAX_GHOSTS; i++) {
-const g = ghosts[i];
-if (!g.active) {
-g.active = true;
-g.x = player.x;
-g.y = player.y;
-g.angle = player.angle;
-g.alpha = 0.55;
-g.color = '#00f3ff';
-break;
-}
-}
-} else {
-let ix = 0, iy = 0;
-if (keys['KeyW'] || keys['ArrowUp']) iy -= 1;
-if (keys['KeyS'] || keys['ArrowDown']) iy += 1;
-if (keys['KeyA'] || keys['ArrowLeft']) ix -= 1;
-if (keys['KeyD'] || keys['ArrowRight']) ix += 1;
-
-if (ix !== 0 || iy !== 0) {
-const len = Math.hypot(ix, iy);
-ix /= len;
-iy /= len;
-}
-
-const accel = 14.0;
-player.vx += (ix * player.moveSpeed - player.vx) * Math.min(1, accel * dt);
-player.vy += (iy * player.moveSpeed - player.vy) * Math.min(1, accel * dt);
-}
-
-player.x += player.vx * dt;
-player.y += player.vy * dt;
-
-// Arena boundary clamp
-const pad = 35;
-if (player.x < pad) { player.x = pad; player.vx = 0; }
-if (player.x > WORLD_SIZE - pad) { player.x = WORLD_SIZE - pad; player.vx = 0; }
-if (player.y < pad) { player.y = pad; player.vy = 0; }
-if (player.y > WORLD_SIZE - pad) { player.y = WORLD_SIZE - pad; player.vy = 0; }
-
-// Thruster exhaust particles
-if (Math.hypot(player.vx, player.vy) > 60 && Math.random() < 0.65) {
-const backAng = player.angle + Math.PI + (Math.random() - 0.5) * 0.45;
-spawnParticle(
-player.x + Math.cos(backAng) * 14,
-player.y + Math.sin(backAng) * 14,
-Math.cos(backAng) * 90,
-Math.sin(backAng) * 90,
-'#00f3ff',
-2.5,
-3.8,
-false
-);
-}
-
-// Smooth Camera with Mouse Lookahead
-const lookX = (mouse.x - screenW / 2) * 0.14;
-const lookY = (mouse.y - screenH / 2) * 0.14;
-camera.kickX *= Math.pow(0.001, dt);
-camera.kickY *= Math.pow(0.001, dt);
-
-const targetCamX = player.x + lookX + camera.kickX;
-const targetCamY = player.y + lookY + camera.kickY;
-camera.x += (targetCamX - camera.x) * Math.min(1, 9.5 * dt);
-camera.y += (targetCamY - camera.y) * Math.min(1, 9.5 * dt);
-
-mouse.worldX = camera.x - screenW / 2 + mouse.x;
-mouse.worldY = camera.y - screenH / 2 + mouse.y;
-player.angle = Math.atan2(mouse.worldY - player.y, mouse.worldX - player.x);
-
-// Firing
-if ((autoFire || mouse.down) && player.fireCooldown <= 0) {
-firePlayerWeapon();
-player.fireCooldown = 1 / player.fireRate;
-}
-
-// Populate Spatial Hash Grid with active enemies
-spatialGrid.clear();
-for (let i = 0; i < MAX_ENEMIES; i++) {
-const e = enemies[i];
-if (e.active) spatialGrid.insert(e);
-}
-
-// Autonomous Tech: Arc Tesla Coil
-if (player.teslaLevel > 0) {
-player.teslaTimer -= dt;
-if (player.teslaTimer <= 0) {
-player.teslaTimer = Math.max(0.45, 1.35 - player.teslaLevel * 0.12);
-const candidates = spatialGrid.query(player.x, player.y, 280);
-if (candidates.length > 0) {
-sfx.lightning();
-let currX = player.x;
-let currY = player.y;
-const jumps = 2 + player.teslaLevel;
-const hitSet = new Set();
-
-for (let j = 0; j < jumps; j++) {
-let best = null;
-let bestDist = 260;
-for (let k = 0; k < candidates.length; k++) {
-const c = candidates[k];
-if (!c.active || hitSet.has(c.id)) continue;
-const d = Math.hypot(c.x - currX, c.y - currY);
-if (d < bestDist) {
-bestDist = d;
-best = c;
-}
-}
-if (!best) break;
-hitSet.add(best.id);
-spawnLightningArc(currX, currY, best.x, best.y, '#00f3ff');
-damageEnemy(best, player.damage * (0.75 + player.teslaLevel * 0.25), true);
-currX = best.x;
-currY = best.y;
-}
+ai.cooldown = ai.type === 'boss' ? 1.1 : 1.45;
 }
 }
 }
 
-// Autonomous Tech: Cryo-Pulse Nova
-if (player.novaLevel > 0) {
-player.novaTimer -= dt;
-if (player.novaTimer <= 0) {
-player.novaTimer = Math.max(2.6, 5.2 - player.novaLevel * 0.45);
-const novaRad = 185 + player.novaLevel * 35;
-spawnShockwave(player.x, player.y, novaRad, '#00f3ff', 420, 4);
-spawnWell(player.x, player.y, novaRad, 35, 0.4);
-const targets = spatialGrid.query(player.x, player.y, novaRad);
-for (let i = 0; i < targets.length; i++) {
-const e = targets[i];
-if (Math.hypot(e.x - player.x, e.y - player.y) <= novaRad) {
-e.slowTimer = 3.2;
-damageEnemy(e, player.damage * (0.6 + player.novaLevel * 0.25), false);
+// Soft separation between nearby entities
+const nearby = this.spatialGrid.query(tr.x, tr.y, tr.radius * 2.2);
+for (const otherId of nearby) {
+if (otherId === id) continue;
+const otr = this.ecs.transform.get(otherId);
+const ocol = this.ecs.collider.get(otherId);
+if (!otr || !ocol || !ocol.solid) continue;
+const sdx = tr.x - otr.x;
+const sdy = tr.y - otr.y;
+const dist = Math.hypot(sdx, sdy);
+const minDist = tr.radius + otr.radius;
+if (dist > 0.001 && dist < minDist) {
+const push = (minDist - dist) * 0.5;
+this.moveWithWallSlide(tr, (sdx / dist) * push, (sdy / dist) * push);
 }
 }
 }
-}
+this.state.enemiesRemaining = activeEnemies;
 
-// Orbital Aegis Blades
-if (player.orbitalCount > 0) {
-player.orbitalAngle += player.orbitalSpeed * dt;
-const orbDist = 56;
-for (let i = 0; i < player.orbitalCount; i++) {
-const ang = player.orbitalAngle + (Math.PI * 2 * i) / player.orbitalCount;
-const ox = player.x + Math.cos(ang) * orbDist;
-const oy = player.y + Math.sin(ang) * orbDist;
+// 4. Update Projectiles & Fast Spatial Collision Detection
+for (const [id, proj] of this.ecs.projectile.entries()) {
+const tr = this.ecs.transform.get(id);
+const vel = this.ecs.velocity.get(id);
+if (!tr || !vel) continue;
 
-const nearEnemies = spatialGrid.query(ox, oy, 26);
-for (let k = 0; k < nearEnemies.length; k++) {
-const e = nearEnemies[k];
-if (!e.active) continue;
-if (Math.hypot(e.x - ox, e.y - oy) < e.radius + 12) {
-if (e.flashTimer <= 0) {
-damageEnemy(e, player.damage * 0.65, false);
-const pushX = e.x - player.x;
-const pushY = e.y - player.y;
-const pLen = Math.hypot(pushX, pushY) || 1;
-e.vx += (pushX / pLen) * 220;
-e.vy += (pushY / pLen) * 220;
-}
-}
-}
-}
-}
-
-// Update Projectiles
-for (let i = 0; i < MAX_PROJECTILES; i++) {
-const b = projectiles[i];
-if (!b.active) continue;
-
-b.life += dt;
-if (b.life >= b.maxLife) {
-b.active = false;
+proj.life -= dt;
+if (proj.life <= 0) {
+this.ecs.destroyEntity(id);
 continue;
 }
 
-b.px = b.x;
-b.py = b.y;
+const nx = tr.x + vel.vx * dt;
+const ny = tr.y + vel.vy * dt;
 
-// Homing missile steering
-if (b.isMissile) {
-const near = spatialGrid.query(b.x, b.y, 320);
-let closest = null;
-let minDist = 320;
-for (let k = 0; k < near.length; k++) {
-const e = near[k];
-if (!e.active) continue;
-const d = Math.hypot(e.x - b.x, e.y - b.y);
-if (d < minDist) {
-minDist = d;
-closest = e;
-}
-}
-if (closest) {
-const curAng = Math.atan2(b.vy, b.vx);
-const targetAng = Math.atan2(closest.y - b.y, closest.x - b.x);
-let diff = targetAng - curAng;
-while (diff > Math.PI) diff -= Math.PI * 2;
-while (diff < -Math.PI) diff += Math.PI * 2;
-const newAng = curAng + Math.max(-b.turnRate * dt, Math.min(b.turnRate * dt, diff));
-const spd = Math.hypot(b.vx, b.vy);
-b.vx = Math.cos(newAng) * spd;
-b.vy = Math.sin(newAng) * spd;
-}
-if (Math.random() < 0.6) {
-spawnParticle(b.x, b.y, 0, 0, '#b537f2', 2.2, 4.5, false);
-}
-}
-
-b.x += b.vx * dt;
-b.y += b.vy * dt;
-
-if (b.x < 0 || b.x > WORLD_SIZE || b.y < 0 || b.y > WORLD_SIZE) {
-b.active = false;
+// Wall impact check
+if (this.map.isSolid(nx | 0, ny | 0)) {
+this.particles.burst(tr.x, tr.y, 0, 10, proj.color, 2.2, 0.06);
+this.ecs.destroyEntity(id);
 continue;
 }
+tr.x = nx;
+tr.y = ny;
 
-if (b.isEnemy) {
-// Check Orbital Shield interception
-if (player.orbitalCount > 0) {
-let blocked = false;
-for (let o = 0; o < player.orbitalCount; o++) {
-const ang = player.orbitalAngle + (Math.PI * 2 * o) / player.orbitalCount;
-const ox = player.x + Math.cos(ang) * 56;
-const oy = player.y + Math.sin(ang) * 56;
-if (Math.hypot(b.x - ox, b.y - oy) < b.radius + 14) {
-b.active = false;
-blocked = true;
-spawnBurst(b.x, b.y, 6, '#00ff88', 40, 140, 2);
+if (proj.owner === 'player') {
+const candidates = this.spatialGrid.query(tr.x, tr.y, tr.radius + 0.5);
+for (const targetId of candidates) {
+const col = this.ecs.collider.get(targetId);
+if (!col || !col.isEnemy) continue;
+const tTr = this.ecs.transform.get(targetId);
+if (!tTr) continue;
+if (Math.hypot(tr.x - tTr.x, tr.y - tTr.y) < tr.radius + tTr.radius) {
+const hlth = this.ecs.health.get(targetId);
+if (hlth) {
+hlth.hp -= proj.damage;
+hlth.hitFlash = 0.1;
+this.particles.burst(tr.x, tr.y, 0, 12, 0xFF3322FF, 2.8, 0.08);
+this.sound.sfxHit();
+
+// Wake enemy up immediately on hit
+const ai = this.ecs.ai.get(targetId);
+if (ai) ai.state = 'SEEK';
+
+if (hlth.hp <= 0) {
+this.state.score += ai ? ai.score : 100;
+this.particles.burst(tTr.x, tTr.y, 0, 32, 0xFF2255FF, 3.8, 0.12);
+this.sound.sfxExplosion();
+this.ecs.destroyEntity(targetId);
+}
+}
+this.ecs.destroyEntity(id);
 break;
 }
 }
-if (blocked) continue;
-}
-
-// Check collision with Player
-if (Math.hypot(b.x - player.x, b.y - player.y) < b.radius + player.radius - 3) {
-b.active = false;
-damagePlayer(14);
-}
 } else {
-// Player Projectile vs Enemies via Spatial Grid
-const candidates = spatialGrid.query(b.x, b.y, b.radius + 44);
-for (let k = 0; k < candidates.length; k++) {
-const e = candidates[k];
-if (!e.active) continue;
-
-// Skip already pierced enemies
-let alreadyHit = false;
-for (let h = 0; h < b.hitCount; h++) {
-if (b.hitIds[h] === e.id) { alreadyHit = true; break; }
-}
-if (alreadyHit) continue;
-
-const dx = e.x - b.x;
-const dy = e.y - b.y;
-if (dx * dx + dy * dy <= (e.radius + b.radius) * (e.radius + b.radius)) {
-if (b.isMissile) {
-// Missile AoE detonation
-spawnShockwave(b.x, b.y, b.aoeRadius, '#b537f2', 420, 3.5);
-spawnBurst(b.x, b.y, 14, '#b537f2', 50, 240, 3);
-const aoeTargets = spatialGrid.query(b.x, b.y, b.aoeRadius);
-for (let a = 0; a < aoeTargets.length; a++) {
-const ae = aoeTargets[a];
-if (ae.active && Math.hypot(ae.x - b.x, ae.y - b.y) <= b.aoeRadius + ae.radius) {
-damageEnemy(ae, b.dmg, true);
-}
-}
-b.active = false;
-break;
-} else {
-// Direct plasma hit
-const spd = Math.hypot(b.vx, b.vy) || 1;
-const knock = e.isBoss ? 25 : 95;
-e.vx += (b.vx / spd) * knock;
-e.vy += (b.vy / spd) * knock;
-
-spawnBurst(b.x, b.y, 5, b.color, 50, 190, 2.2);
-damageEnemy(e, b.dmg, true);
-
-if (b.pierce > 0 && b.hitCount < 8) {
-b.hitIds[b.hitCount++] = e.id;
-b.pierce--;
-} else {
-b.active = false;
-break;
-}
-}
-}
-}
-}
-}
-
-// Update Enemies
-for (let i = 0; i < MAX_ENEMIES; i++) {
-const e = enemies[i];
-if (!e.active) continue;
-
-if (e.flashTimer > 0) e.flashTimer -= dt;
-if (e.slowTimer > 0) e.slowTimer -= dt;
-
-const slowFactor = e.slowTimer > 0 ? 0.5 : 1.0;
-const dx = player.x - e.x;
-const dy = player.y - e.y;
-const dist = Math.hypot(dx, dy) || 1;
-const dirX = dx / dist;
-const dirY = dy / dist;
-e.angle = Math.atan2(dy, dx);
-
-if (e.type === 1) {
-// Charger Tank behavior
-e.stateTimer += dt;
-if (!e.isCharging) {
-if (e.stateTimer < 2.2) {
-e.vx += (dirX * e.speed * slowFactor - e.vx) * 5 * dt;
-e.vy += (dirY * e.speed * slowFactor - e.vy) * 5 * dt;
-} else if (e.stateTimer < 2.85) {
-// Telegraph wind-up
-e.vx *= 0.85;
-e.vy *= 0.85;
-e.chargeDirX = dirX;
-e.chargeDirY = dirY;
-} else {
-e.isCharging = true;
-e.stateTimer = 0;
-}
-} else {
-// High speed charge
-const cSpeed = 470 * slowFactor;
-e.vx = e.chargeDirX * cSpeed;
-e.vy = e.chargeDirY * cSpeed;
-if (Math.random() < 0.5) {
-spawnParticle(e.x, e.y, 0, 0, '#ffb800', 3, 3.5, false);
-}
-if (e.stateTimer > 0.55) {
-e.isCharging = false;
-e.stateTimer = 0;
-}
-}
-} else if (e.type === 2) {
-// Shooter Prism: maintains mid-range and fires plasma orbs
-const desiredDist = 290;
-let moveX = dirX;
-let moveY = dirY;
-if (dist < desiredDist - 40) {
-moveX = -dirX;
-moveY = -dirY;
-} else if (dist < desiredDist + 40) {
-moveX = -dirY;
-moveY = dirX;
-}
-e.vx += (moveX * e.speed * slowFactor - e.vx) * 5 * dt;
-e.vy += (moveY * e.speed * slowFactor - e.vy) * 5 * dt;
-
-e.stateTimer += dt * slowFactor;
-if (e.stateTimer >= 2.1 && dist < 560) {
-e.stateTimer = 0;
-spawnProjectile(e.x, e.y, dirX * 320, dirY * 320, 14, 0, true, false);
-}
-} else if (e.type === 4) {
-// Apex Warden Boss: radial bullet burst + relentless pursuit
-e.vx += (dirX * e.speed * slowFactor - e.vx) * 4 * dt;
-e.vy += (dirY * e.speed * slowFactor - e.vy) * 4 * dt;
-e.stateTimer += dt * slowFactor;
-if (e.stateTimer >= 2.4) {
-e.stateTimer = 0;
-e.phase = (e.phase + 1) % 2;
-const count = 10;
-for (let b = 0; b < count; b++) {
-const bAng = e.angle + (Math.PI * 2 * b) / count + e.phase * 0.3;
-spawnProjectile(
-e.x + Math.cos(bAng) * 30,
-e.y + Math.sin(bAng) * 30,
-Math.cos(bAng) * 280,
-Math.sin(bAng) * 280,
-16,
-0,
-true,
-false
-);
-}
-spawnShockwave(e.x, e.y, 130, '#ff007f', 400, 3);
-}
-} else {
-// Swarmer, Splitter Hex, Mini-Swarmer
-e.vx += (dirX * e.speed * slowFactor - e.vx) * 6 * dt;
-e.vy += (dirY * e.speed * slowFactor - e.vy) * 6 * dt;
-}
-
-// Soft separation via Spatial Hash Grid so enemies never stack on a single pixel
-const neighbors = spatialGrid.query(e.x, e.y, e.radius * 2.2);
-for (let n = 0; n < neighbors.length; n++) {
-const other = neighbors[n];
-if (other === e || !other.active) continue;
-const nx = e.x - other.x;
-const ny = e.y - other.y;
-const nDistSq = nx * nx + ny * ny;
-const minSep = e.radius + other.radius;
-if (nDistSq > 0.001 && nDistSq < minSep * minSep) {
-const nDist = Math.sqrt(nDistSq);
-const push = ((minSep - nDist) / minSep) * 240;
-e.vx += (nx / nDist) * push * dt;
-e.vy += (ny / nDist) * push * dt;
-}
-}
-
-e.x += e.vx * dt;
-e.y += e.vy * dt;
-
-// Keep inside world bounds
-e.x = Math.max(e.radius, Math.min(WORLD_SIZE - e.radius, e.x));
-e.y = Math.max(e.radius, Math.min(WORLD_SIZE - e.radius, e.y));
-
-// Enemy vs Player contact check
-if (dist < e.radius + player.radius - 2) {
-if (player.dashTimer > 0) {
-// Player dashing slices through enemies
-damageEnemy(e, player.damage * 0.5, false);
-} else {
-damagePlayer(e.isBoss ? 25 : 16);
-e.vx -= dirX * 260;
-e.vy -= dirY * 260;
-}
-}
-}
-
-// Update XP Orbs
-for (let i = 0; i < MAX_ORBS; i++) {
-const o = xpOrbs[i];
-if (!o.active) continue;
-
-o.pulse += dt * 6;
-const dx = player.x - o.x;
-const dy = player.y - o.y;
-const dist = Math.hypot(dx, dy) || 1;
-
-if (dist < player.magnetRadius) {
-o.magnetized = true;
-}
-
-if (o.magnetized) {
-const pullSpeed = 580 + (1 - Math.min(1, dist / player.magnetRadius)) * 380;
-o.vx = (dx / dist) * pullSpeed;
-o.vy = (dy / dist) * pullSpeed;
-} else {
-o.vx *= Math.pow(0.05, dt);
-o.vy *= Math.pow(0.05, dt);
-}
-
-o.x += o.vx * dt;
-o.y += o.vy * dt;
-
-if (dist < player.radius + o.radius + 6) {
-o.active = false;
-addXP(o.val);
-}
-}
-
-// Update Particles
-for (let i = 0; i < MAX_PARTICLES; i++) {
-const p = particles[i];
-if (!p.active) continue;
-p.x += p.vx * dt;
-p.y += p.vy * dt;
-p.vx *= p.drag;
-p.vy *= p.drag;
-p.alpha -= p.decay * dt;
-if (p.alpha <= 0) p.active = false;
-}
-
-// Update Shockwaves
-for (let i = 0; i < MAX_SHOCKWAVES; i++) {
-const s = shockwaves[i];
-if (!s.active) continue;
-s.radius += s.speed * dt;
-s.alpha = 1 - s.radius / s.maxRadius;
-if (s.alpha <= 0) s.active = false;
-}
-
-// Update Floating Texts
-for (let i = 0; i < MAX_TEXTS; i++) {
-const t = floatingTexts[i];
-if (!t.active) continue;
-t.life += dt;
-t.x += t.vx * dt;
-t.y += t.vy * dt;
-t.vy += 120 * dt;
-t.alpha = 1 - t.life / t.maxLife;
-if (t.life >= t.maxLife) t.active = false;
-}
-
-// Update Dash Ghosts
-for (let i = 0; i < MAX_GHOSTS; i++) {
-const g = ghosts[i];
-if (!g.active) continue;
-g.alpha -= 2.8 * dt;
-if (g.alpha <= 0) g.active = false;
-}
-
-// Update Lightning Arcs
-for (let i = 0; i < MAX_LIGHTNING; i++) {
-const l = lightningArcs[i];
-if (!l.active) continue;
-l.alpha -= 5.5 * dt;
-if (l.alpha <= 0) l.active = false;
-}
-
-// Update Reactive Grid Wells
-for (let i = 0; i < MAX_WELLS; i++) {
-const w = gridWells[i];
-if (!w.active) continue;
-w.life -= dt;
-if (w.life <= 0) w.active = false;
-}
-}
-
-// ============================================================================
-// 10. RENDERING ENGINE (NEON VECTOR + ADDITIVE BLOOM + REACTIVE GRID)
-// ============================================================================
-function displaceGridPoint(gx, gy) {
-let ox = gx, oy = gy;
-for (let i = 0; i < MAX_WELLS; i++) {
-const w = gridWells[i];
-if (!w.active) continue;
-const dx = gx - w.x;
-const dy = gy - w.y;
-const distSq = dx * dx + dy * dy;
-if (distSq < w.radius * w.radius && distSq > 1) {
-const dist = Math.sqrt(distSq);
-const factor = (1 - dist / w.radius) * (w.life / w.maxLife) * w.strength;
-ox += (dx / dist) * factor;
-oy += (dy / dist) * factor;
+// Enemy projectile hitting player
+if (Math.hypot(tr.x - p.x, tr.y - p.y) < tr.radius + p.radius) {
+p.hp -= proj.damage;
+p.damageFlash = 0.7;
+this.particles.burst(tr.x, tr.y, 0, 12, 0xFF2244FF, 2.5, 0.07);
+this.sound.sfxHit();
+this.ecs.destroyEntity(id);
 }
 }
-return { x: ox, y: oy };
 }
 
-function renderWorld() {
-ctx.globalCompositeOperation = 'source-over';
-ctx.fillStyle = '#05050c';
-ctx.fillRect(0, 0, screenW, screenH);
+// 5. Player Pickup Collection
+const playerNearby = this.spatialGrid.query(p.x, p.y, p.radius + 0.5);
+for (const id of playerNearby) {
+const pk = this.ecs.pickup.get(id);
+const tr = this.ecs.transform.get(id);
+if (!pk || !tr) continue;
 
-const camLeft = camera.x - screenW / 2 + camera.shakeX;
-const camTop = camera.y - screenH / 2 + camera.shakeY;
-
-ctx.save();
-ctx.translate(-camLeft, -camTop);
-
-// 1. Reactive Cyber-Grid Background
-const gridStep = 80;
-const startX = Math.max(0, Math.floor(camLeft / gridStep) * gridStep);
-const endX = Math.min(WORLD_SIZE, Math.ceil((camLeft + screenW) / gridStep) * gridStep);
-const startY = Math.max(0, Math.floor(camTop / gridStep) * gridStep);
-const endY = Math.min(WORLD_SIZE, Math.ceil((camTop + screenH) / gridStep) * gridStep);
-
-ctx.strokeStyle = 'rgba(0, 243, 255, 0.08)';
-ctx.lineWidth = 1;
-ctx.beginPath();
-for (let x = startX; x <= endX; x += gridStep) {
-for (let y = startY; y <= endY; y += gridStep) {
-const p = displaceGridPoint(x, y);
-if (x < endX) {
-const pr = displaceGridPoint(x + gridStep, y);
-ctx.moveTo(p.x, p.y);
-ctx.lineTo(pr.x, pr.y);
-}
-if (y < endY) {
-const pb = displaceGridPoint(x, y + gridStep);
-ctx.moveTo(p.x, p.y);
-ctx.lineTo(pb.x, pb.y);
-}
-}
-}
-ctx.stroke();
-
-// Arena Boundary Neon Wall
-ctx.strokeStyle = '#ff007f';
-ctx.lineWidth = 4;
-ctx.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
-
-// Switch to Additive Blending for Glowing Entities
-ctx.globalCompositeOperation = 'lighter';
-
-// 2. Shockwaves
-for (let i = 0; i < MAX_SHOCKWAVES; i++) {
-const s = shockwaves[i];
-if (!s.active) continue;
-ctx.save();
-ctx.globalAlpha = Math.max(0, s.alpha);
-ctx.strokeStyle = s.color;
-ctx.lineWidth = s.width;
-ctx.beginPath();
-ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-ctx.stroke();
-ctx.restore();
-}
-
-// 3. XP Orbs
-for (let i = 0; i < MAX_ORBS; i++) {
-const o = xpOrbs[i];
-if (!o.active) continue;
-if (o.x < camLeft - 30 || o.x > camLeft + screenW + 30 ||
-o.y < camTop - 30 || o.y > camTop + screenH + 30) continue;
-
-const r = o.radius + Math.sin(o.pulse) * 1.3;
-ctx.fillStyle = o.color;
-ctx.beginPath();
-ctx.arc(o.x, o.y, r, 0, Math.PI * 2);
-ctx.fill();
-
-ctx.fillStyle = '#ffffff';
-ctx.beginPath();
-ctx.arc(o.x, o.y, r * 0.45, 0, Math.PI * 2);
-ctx.fill();
-}
-
-// 4. Dash Afterimage Ghosts
-for (let i = 0; i < MAX_GHOSTS; i++) {
-const g = ghosts[i];
-if (!g.active) continue;
-ctx.save();
-ctx.translate(g.x, g.y);
-ctx.rotate(g.angle);
-ctx.globalAlpha = Math.max(0, g.alpha);
-ctx.strokeStyle = g.color;
-ctx.lineWidth = 2;
-ctx.beginPath();
-ctx.moveTo(18, 0);
-ctx.lineTo(-13, -12);
-ctx.lineTo(-7, 0);
-ctx.lineTo(-13, 12);
-ctx.closePath();
-ctx.stroke();
-ctx.restore();
-}
-
-// 5. Particles
-for (let i = 0; i < MAX_PARTICLES; i++) {
-const p = particles[i];
-if (!p.active) continue;
-if (p.x < camLeft - 20 || p.x > camLeft + screenW + 20 ||
-p.y < camTop - 20 || p.y > camTop + screenH + 20) continue;
-
-ctx.save();
-ctx.globalAlpha = Math.max(0, p.alpha);
-if (p.isSpark) {
-ctx.strokeStyle = p.color;
-ctx.lineWidth = p.size;
-ctx.beginPath();
-ctx.moveTo(p.x, p.y);
-ctx.lineTo(p.x - p.vx * 0.035, p.y - p.vy * 0.035);
-ctx.stroke();
-} else {
-ctx.fillStyle = p.color;
-ctx.beginPath();
-ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-ctx.fill();
-}
-ctx.restore();
-}
-
-// 6. Enemies
-for (let i = 0; i < MAX_ENEMIES; i++) {
-const e = enemies[i];
-if (!e.active) continue;
-if (e.x < camLeft - 80 || e.x > camLeft + screenW + 80 ||
-e.y < camTop - 80 || e.y > camTop + screenH + 80) continue;
-
-ctx.save();
-ctx.translate(e.x, e.y);
-
-// Charger telegraph aim line
-if (e.type === 1 && !e.isCharging && e.stateTimer >= 2.2) {
-ctx.strokeStyle = 'rgba(255, 184, 0, 0.45)';
-ctx.lineWidth = 2;
-ctx.setLineDash([6, 6]);
-ctx.beginPath();
-ctx.moveTo(0, 0);
-ctx.lineTo(e.chargeDirX * 260, e.chargeDirY * 260);
-ctx.stroke();
-ctx.setLineDash([]);
-}
-
-ctx.rotate(e.angle);
-const col = e.flashTimer > 0 ? '#ffffff' : e.slowTimer > 0 ? '#00f3ff' : e.color;
-ctx.strokeStyle = col;
-ctx.fillStyle = e.flashTimer > 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.1)';
-ctx.lineWidth = e.isBoss ? 3.5 : 2.4;
-
-ctx.beginPath();
-if (e.type === 0 || e.type === 5) {
-// Swarmer Dart
-const r = e.radius;
-ctx.moveTo(r * 1.2, 0);
-ctx.lineTo(-r * 0.9, -r * 0.85);
-ctx.lineTo(-r * 0.4, 0);
-ctx.lineTo(-r * 0.9, r * 0.85);
-ctx.closePath();
-} else if (e.type === 1) {
-// Charger Octagon
-const sides = 8;
-for (let s = 0; s < sides; s++) {
-const a = (Math.PI * 2 * s) / sides;
-const px = Math.cos(a) * e.radius;
-const py = Math.sin(a) * e.radius;
-if (s === 0) ctx.moveTo(px, py);
-else ctx.lineTo(px, py);
-}
-ctx.closePath();
-} else if (e.type === 2) {
-// Shooter Diamond Prism
-const r = e.radius;
-ctx.moveTo(r * 1.25, 0);
-ctx.lineTo(0, -r * 0.95);
-ctx.lineTo(-r * 1.1, 0);
-ctx.lineTo(0, r * 0.95);
-ctx.closePath();
-} else if (e.type === 3) {
-// Splitter Hexagon
-for (let s = 0; s < 6; s++) {
-const a = (Math.PI * 2 * s) / 6;
-const px = Math.cos(a) * e.radius;
-const py = Math.sin(a) * e.radius;
-if (s === 0) ctx.moveTo(px, py);
-else ctx.lineTo(px, py);
-}
-ctx.closePath();
-} else if (e.type === 4) {
-// Apex Warden Boss Dreadnought
-const spikes = 12;
-for (let s = 0; s < spikes; s++) {
-const a = (Math.PI * 2 * s) / spikes;
-const rad = s % 2 === 0 ? e.radius * 1.15 : e.radius * 0.72;
-const px = Math.cos(a) * rad;
-const py = Math.sin(a) * rad;
-if (s === 0) ctx.moveTo(px, py);
-else ctx.lineTo(px, py);
-}
-ctx.closePath();
+if (Math.hypot(p.x - tr.x, p.y - tr.y) < p.radius + tr.radius) {
+if (pk.kind === 'health' && p.hp < p.maxHp) {
+p.hp = Math.min(p.maxHp, p.hp + pk.value);
+p.bonusFlash = 0.5;
+this.sound.sfxPickup();
+this.ecs.destroyEntity(id);
+} else if (pk.kind === 'ammo') {
+p.ammo += pk.value;
+p.bonusFlash = 0.5;
+this.sound.sfxPickup();
+this.ecs.destroyEntity(id);
+} else if (pk.kind === 'weapon') {
+p.unlockedWeapons[2] = true;
+p.weapon = 2;
+p.ammo += 35;
+p.bonusFlash = 0.7;
+this.sound.sfxPickup();
+this.ecs.destroyEntity(id);
+} else if (pk.kind === 'portal') {
+this.sound.sfxPickup();
+this.state.score += 250 * this.state.level;
+this.loadLevel(this.state.level + 1, false);
+return;
 }
-ctx.fill();
-ctx.stroke();
-
-// Boss health ring
-if (e.isBoss) {
-ctx.rotate(-e.angle);
-const pct = Math.max(0, e.hp / e.maxHp);
-ctx.strokeStyle = '#ff007f';
-ctx.lineWidth = 4;
-ctx.beginPath();
-ctx.arc(0, 0, e.radius + 12, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * pct);
-ctx.stroke();
-}
-
-ctx.restore();
-}
-
-// 7. Projectiles
-for (let i = 0; i < MAX_PROJECTILES; i++) {
-const b = projectiles[i];
-if (!b.active) continue;
-
-ctx.strokeStyle = b.color;
-ctx.lineWidth = b.radius * 1.3;
-ctx.lineCap = 'round';
-ctx.beginPath();
-ctx.moveTo(b.px, b.py);
-ctx.lineTo(b.x, b.y);
-ctx.stroke();
-
-ctx.fillStyle = '#ffffff';
-ctx.beginPath();
-ctx.arc(b.x, b.y, b.radius * 0.55, 0, Math.PI * 2);
-ctx.fill();
-}
-
-// 8. Lightning Arcs
-for (let i = 0; i < MAX_LIGHTNING; i++) {
-const l = lightningArcs[i];
-if (!l.active) continue;
-ctx.save();
-ctx.globalAlpha = Math.max(0, l.alpha);
-ctx.strokeStyle = l.color;
-ctx.lineWidth = 2.5;
-ctx.beginPath();
-ctx.moveTo(l.x1, l.y1);
-const segs = 5;
-for (let s = 1; s < segs; s++) {
-const t = s / segs;
-const jx = l.x1 + (l.x2 - l.x1) * t + (Math.random() - 0.5) * 24;
-const jy = l.y1 + (l.y2 - l.y1) * t + (Math.random() - 0.5) * 24;
-ctx.lineTo(jx, jy);
-}
-ctx.lineTo(l.x2, l.y2);
-ctx.stroke();
-ctx.restore();
-}
-
-// 9. Player Ship & Orbital Blades
-ctx.save();
-ctx.translate(player.x, player.y);
-
-// Invulnerability shield ring
-if (player.invulnTimer > 0) {
-ctx.strokeStyle = 'rgba(0, 243, 255, 0.55)';
-ctx.lineWidth = 2;
-ctx.beginPath();
-ctx.arc(0, 0, player.radius + 9, 0, Math.PI * 2);
-ctx.stroke();
-}
-
-// Orbital Aegis Blades
-if (player.orbitalCount > 0) {
-for (let o = 0; o < player.orbitalCount; o++) {
-const ang = player.orbitalAngle + (Math.PI * 2 * o) / player.orbitalCount;
-const ox = Math.cos(ang) * 56;
-const oy = Math.sin(ang) * 56;
-ctx.save();
-ctx.translate(ox, oy);
-ctx.rotate(ang + Math.PI / 2);
-ctx.strokeStyle = '#00ff88';
-ctx.fillStyle = '#ffffff';
-ctx.lineWidth = 2.5;
-ctx.beginPath();
-ctx.moveTo(12, 0);
-ctx.lineTo(0, -6);
-ctx.lineTo(-12, 0);
-ctx.lineTo(0, 6);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-ctx.restore();
 }
 }
 
-// Player Vector Striker
-ctx.rotate(player.angle);
-ctx.strokeStyle = '#00f3ff';
-ctx.fillStyle = 'rgba(0, 243, 255, 0.22)';
-ctx.lineWidth = 2.8;
-ctx.beginPath();
-ctx.moveTo(19, 0);
-ctx.lineTo(-13, -13);
-ctx.lineTo(-7, 0);
-ctx.lineTo(-13, 13);
-ctx.closePath();
-ctx.fill();
-ctx.stroke();
-
-// Inner bright core
-ctx.fillStyle = '#ffffff';
-ctx.beginPath();
-ctx.arc(2, 0, 3.5, 0, Math.PI * 2);
-ctx.fill();
-ctx.restore();
-
-// 10. Floating Damage Numbers
-ctx.globalCompositeOperation = 'source-over';
-ctx.textAlign = 'center';
-for (let i = 0; i < MAX_TEXTS; i++) {
-const t = floatingTexts[i];
-if (!t.active) continue;
-ctx.save();
-ctx.globalAlpha = Math.max(0, t.alpha);
-ctx.font = `900 ${t.size}px "Segoe UI", monospace`;
-ctx.fillStyle = t.color;
-ctx.fillText(t.text, t.x, t.y);
-ctx.restore();
-}
-
-ctx.restore();
-
-// 11. Custom Neon Reticle (Screen Space)
-if (gameState === STATE.PLAYING) {
-ctx.save();
-ctx.translate(mouse.x, mouse.y);
-ctx.strokeStyle = '#00f3ff';
-ctx.lineWidth = 1.8;
-const spread = 8 + Math.hypot(camera.kickX, camera.kickY) * 1.4;
-ctx.beginPath();
-ctx.arc(0, 0, spread, 0, Math.PI * 2);
-ctx.moveTo(-spread - 6, 0); ctx.lineTo(-spread + 2, 0);
-ctx.moveTo(spread - 2, 0); ctx.lineTo(spread + 6, 0);
-ctx.moveTo(0, -spread - 6); ctx.lineTo(0, -spread + 2);
-ctx.moveTo(0, spread - 2); ctx.lineTo(0, spread + 6);
-ctx.stroke();
-ctx.restore();
-}
+// Check Player Death
+if (p.hp <= 0) {
+p.hp = 0;
+this.state.mode = 'GAMEOVER';
+if (document.exitPointerLock) document.exitPointerLock();
 }
 
-// ============================================================================
-// 11. HUD TELEMETRY & MAIN ENGINE LOOP
-// ============================================================================
-function formatTime(sec) {
-const m = Math.floor(sec / 60);
-const s = Math.floor(sec % 60);
-return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+// 6. Update Particles & Flush Destroyed ECS Entities
+this.particles.update(dt, this.map);
+this.ecs.flushDestroyed();
 }
-
-let fpsCount = 0;
-let fpsTimer = 0;
-let currentFps = 60;
-
-function updateHUD() {
-const hpPct = Math.max(0, (player.hp / player.maxHp) * 100);
-document.getElementById('hp-bar').style.width = `${hpPct}%`;
-document.getElementById('hp-trail').style.width = `${hpPct}%`;
-document.getElementById('hp-text').textContent = `${Math.ceil(player.hp)} / ${player.maxHp}`;
 
-const dashReadyPct = player.dashCooldown <= 0
-? 100
-: Math.max(0, (1 - player.dashCooldown / player.dashCooldownMax) * 100);
-document.getElementById('dash-bar').style.width = `${dashReadyPct}%`;
-document.getElementById('dash-text').textContent =
-player.dashCooldown <= 0 ? 'READY' : `${player.dashCooldown.toFixed(1)}s`;
+loop(now) {
+const frameTime = Math.min(0.1, (now - this.lastFrameTime) / 1000);
+this.lastFrameTime = now;
+this.accumulator += frameTime;
 
-document.getElementById('timer-text').textContent = formatTime(runTime);
-document.getElementById('wave-text').textContent = `WAVE ${waveNumber} // SWARM ACTIVE`;
-document.getElementById('score-text').textContent = score.toLocaleString();
-document.getElementById('combo-text').textContent =
-`${combo.toFixed(1)}x MULTIPLIER | ${kills} KILLS`;
-
-const xpPct = Math.min(100, (player.xp / player.xpToNext) * 100);
-document.getElementById('xp-bar').style.width = `${xpPct}%`;
-document.getElementById('lvl-text').textContent =
-`SYSTEM LEVEL ${player.level < 10 ? '0' + player.level : player.level}`;
-document.getElementById('xp-text').textContent =
-`${Math.floor(player.xp)} / ${player.xpToNext} XP`;
+while (this.accumulator >= this.fixedDt) {
+this.fixedUpdate(this.fixedDt);
+this.accumulator -= this.fixedDt;
 }
-
-const FIXED_DT = 1 / 60;
-let accumulator = 0;
-let lastTime = performance.now();
-let hudUpdateTick = 0;
-
-function engineLoop(now) {
-requestAnimationFrame(engineLoop);
-
-let frameTime = (now - lastTime) / 1000;
-lastTime = now;
-if (frameTime > 0.1) frameTime = 0.1; // Spiral-of-death cap
 
-// FPS Counter
-fpsCount++;
-fpsTimer += frameTime;
-if (fpsTimer >= 0.5) {
-currentFps = Math.round(fpsCount / fpsTimer);
-fpsCount = 0;
-fpsTimer = 0;
+// Bake Dynamic Lighting & Render 3D Scene + HUD
+this.map.bakeLighting(this.ecs, this.player, this.player.muzzleFlash, this.time);
+this.renderer.renderWorld(this.player, this.map, this.ecs, this.particles, this.time);
+this.renderer.renderHUD(this.player, this.map, this.ecs, this.state);
 
-let activeEntities = 0;
-for (let i = 0; i < MAX_ENEMIES; i++) if (enemies[i].active) activeEntities++;
-for (let i = 0; i < MAX_PROJECTILES; i++) if (projectiles[i].active) activeEntities++;
-for (let i = 0; i < MAX_PARTICLES; i++) if (particles[i].active) activeEntities++;
-document.getElementById('perf-text').textContent =
-`${currentFps} FPS | ${activeEntities} ACTIVE OBJECTS`;
+requestAnimationFrame((t) => this.loop(t));
 }
-
-if (gameState === STATE.PLAYING) {
-accumulator += frameTime;
-while (accumulator >= FIXED_DT) {
-updateSimulation(FIXED_DT);
-accumulator -= FIXED_DT;
-}
-hudUpdateTick++;
-if (hudUpdateTick % 3 === 0) updateHUD();
-}
-
-renderWorld();
 }
 
-requestAnimationFrame(engineLoop);
-})();
+window.addEventListener('DOMContentLoaded', () => {
+new Game();
+});
 </script>
 </body>
 </html>
